@@ -25,6 +25,7 @@ class Activity(SQLModel, table=True):
     name: str
     status: str = Field(default="pending")  # pending, in_progress, done
     scheduled_date: datetime
+    finished_date: Optional[datetime]
 
     created_by_id: Optional[int] = Field(default=None, foreign_key="user.id")
     created_by: Optional[User] = Relationship(
