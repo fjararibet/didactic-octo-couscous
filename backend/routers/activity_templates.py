@@ -1,6 +1,6 @@
 from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlmodel import Session, select
+from sqlmodel import Session, select, func
 from database import get_session
 from models import ActivityTemplate, TemplateTodoItem, User
 from schemas import (
@@ -27,6 +27,20 @@ def create_activity_template(
     session.commit()
     session.refresh(db_activity_template)
     return db_activity_template
+
+
+@router.get("/random", response_model=ActivityTemplateRead)
+def get_random_activity_template(
+    *,
+    session: Session = Depends(get_session),
+    current_user: Annotated[User, Depends(get_current_preventionist)],
+):
+    random_template = session.exec(
+        select(ActivityTemplate).order_by(func.random()).limit(1)
+    ).first()
+    if not random_template:
+        raise HTTPException(status_code=404, detail="No Activity Templates found")
+    return random_template
 
 
 @router.get("/", response_model=List[ActivityTemplateRead])
