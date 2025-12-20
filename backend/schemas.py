@@ -1,7 +1,7 @@
 from typing import Optional, List
 from datetime import datetime
 from sqlmodel import SQLModel, Field
-from .models import Role, Status
+from models import Role, Status
 
 # Shared properties
 class UserBase(SQLModel):
@@ -64,3 +64,12 @@ class TodoItemUpdate(SQLModel):
 
 class TodoItemRead(TodoItemBase):
     id: int
+
+
+class Token(SQLModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(SQLModel):
+    username: Optional[str] = None
