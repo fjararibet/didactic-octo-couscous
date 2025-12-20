@@ -194,4 +194,16 @@ export const activityService = {
 
     return await response.json();
   },
+
+  async getNextScheduledActivity(userId: number): Promise<Activity | null> {
+    const activities = await activityService.getActivitiesByAssignee(userId);
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
+    const upcomingActivities = activities
+      .filter(activity => activity.scheduled_date && new Date(activity.scheduled_date) >= now)
+      .sort((a, b) => new Date(a.scheduled_date!).getTime() - new Date(b.scheduled_date!).getTime());
+
+    return upcomingActivities.length > 0 ? upcomingActivities[0] : null;
+  },
 };

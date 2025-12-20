@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { activityService } from '@/services/activityService';
-import { Activity } from '@/types/activity';
+import { Activity, getActivityStatus } from '@/types/activity';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface StatusActivitiesModalProps {
@@ -16,22 +16,38 @@ export const StatusActivitiesModal = ({ status, userId, isOpen, onClose }: Statu
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (isOpen) {
-      setLoading(true);
-      const today = new Date();
-      const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-      const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-      
-      activityService.getActivities(userId, firstDayOfMonth, lastDayOfMonth, status)
-        .then(data => {
-          setActivities(data);
-          setLoading(false);
-        })
-        .catch(error => {
+    const fetchActivities = async () => {
+      if (isOpen) {
+        setLoading(true);
+        try {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+          firstDayOfMonth.setHours(0, 0, 0, 0);
+          const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+          lastDayOfMonth.setHours(23, 59, 59, 999);
+
+          const allActivities = await activityService.getActivitiesByAssignee(userId);
+
+          const filteredActivities = allActivities.filter(activity => {
+            const activityDate = activity.scheduled_date ? new Date(activity.scheduled_date) : null;
+            const activityStatus = getActivityStatus(activity);
+
+            return activityDate &&
+                   activityDate >= firstDayOfMonth &&
+                   activityDate <= lastDayOfMonth &&
+                   activityStatus === status;
+          });
+          setActivities(filteredActivities);
+        } catch (error) {
           console.error("Error fetching activities:", error);
+        } finally {
           setLoading(false);
-        });
-    }
+        }
+      }
+    };
+
+    fetchActivities();
   }, [isOpen, status, userId]);
 
   return (
