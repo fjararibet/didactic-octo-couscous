@@ -51,7 +51,8 @@ class ActivityUpdate(SQLModel):
 
 class ActivityRead(ActivityBase):
     id: int
-    created_by_id: Optional[int] = None
+    created_by: UserRead
+    assigned_to: Optional[UserRead] = None
 
 
 class TodoItemBase(SQLModel):

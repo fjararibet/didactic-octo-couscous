@@ -105,10 +105,14 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
   const events = scheduledActivities.map(activity => {
     const completedTodos = activity.todos.filter(t => t.is_done).length;
     const totalTodos = activity.todos.length;
+    let title = `${activity.name} (${completedTodos}/${totalTodos})`;
+    if (activity.assigned_to) {
+      title += ` - ${activity.assigned_to.username}`;
+    }
 
     return {
       id: String(activity.id),
-      title: `${activity.name} (${completedTodos}/${totalTodos})`,
+      title: title,
       start: activity.scheduled_date!,
       allDay: true,
       backgroundColor: getStatusColor(activity.status),
@@ -224,6 +228,11 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1">
                           <div className="font-bold text-sm text-gray-900 mb-1">{activity.name}</div>
+                          {activity.assigned_to && (
+                            <div className="text-xs text-gray-600 font-semibold">
+                              {activity.assigned_to.username} - {activity.assigned_to.email}
+                            </div>
+                          )}
                           <div className="text-xs text-gray-500 font-medium">
                             {completedTodos}/{totalTodos} tareas completadas
                           </div>

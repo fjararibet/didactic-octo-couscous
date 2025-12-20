@@ -1,3 +1,10 @@
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  role: 'preventionist' | 'supervisor' | 'admin';
+}
+
 export interface TodoItem {
   id: number;
   description: string;
@@ -11,8 +18,8 @@ export interface Activity {
   status: 'pending' | 'in_progress' | 'done';
   scheduled_date: string | null;
   finished_date: string | null;
-  created_by_id: number;
-  assigned_to_id: number | null;
+  created_by: User;
+  assigned_to: User | null;
   todos: TodoItem[];
 }
 

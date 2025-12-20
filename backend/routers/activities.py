@@ -3,10 +3,15 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select
 from database import get_session
 from models import Activity, User
-from schemas import ActivityCreate, ActivityRead, ActivityUpdate
+from schemas import (
+    ActivityCreate,
+    ActivityRead,
+    ActivityUpdate,
+)
 from routers.auth import get_current_user
 
 router = APIRouter(tags=["activities"])
+
 
 @router.post("/", response_model=ActivityRead, status_code=201)
 def create_activity(
@@ -20,7 +25,12 @@ def create_activity(
     session.add(db_activity)
     session.commit()
     session.refresh(db_activity)
+
+    # Refresh the creator and assigned_to relationships
+    session.refresh(db_activity, attribute_names=["created_by", "assigned_to"])
+
     return db_activity
+
 
 @router.get("/", response_model=List[ActivityRead])
 def read_activities(
@@ -32,7 +42,8 @@ def read_activities(
     activities = session.exec(select(Activity).offset(offset).limit(limit)).all()
     return activities
 
-@router.get("/by-creator/{creator_id}")
+
+@router.get("/by-creator/{creator_id}", response_model=List[ActivityRead])
 def read_activities_by_creator(
     *,
     session: Session = Depends(get_session),
@@ -41,15 +52,8 @@ def read_activities_by_creator(
     activities = session.exec(
         select(Activity).where(Activity.created_by_id == creator_id)
     ).all()
+    return activities
 
-    # Return activities with their todos
-    result = []
-    for activity in activities:
-        activity_dict = activity.model_dump()
-        activity_dict['todos'] = [todo.model_dump() for todo in activity.todos]
-        result.append(activity_dict)
-
-    return result
 
 @router.get("/{activity_id}", response_model=ActivityRead)
 def read_activity(*, session: Session = Depends(get_session), activity_id: int):
@@ -57,6 +61,7 @@ def read_activity(*, session: Session = Depends(get_session), activity_id: int):
     if not activity:
         raise HTTPException(status_code=404, detail="Activity not found")
     return activity
+
 
 @router.patch("/{activity_id}", response_model=ActivityRead)
 def update_activity(
