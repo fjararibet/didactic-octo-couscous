@@ -33,30 +33,30 @@ class User(SQLModel, table=True):
         sa_relationship_kwargs={"foreign_keys": "[Activity.assigned_to_id]"},
     )
 
-    supervised_preventionists: List["SupervisorAssignment"] = Relationship(
-        back_populates="supervisor",
-        sa_relationship_kwargs={"foreign_keys": "[SupervisorAssignment.supervisor_id]"},
-    )
-    supervisor_assigned: Optional["SupervisorAssignment"] = Relationship(
+    supervisors_assigned: List["SupervisorAssignment"] = Relationship(
         back_populates="preventionist",
+        sa_relationship_kwargs={"foreign_keys": "[SupervisorAssignment.preventionist_id]"},
+    )
+    preventionist_assigned: Optional["SupervisorAssignment"] = Relationship(
+        back_populates="supervisor",
         sa_relationship_kwargs={
-            "foreign_keys": "[SupervisorAssignment.preventionist_id]"
+            "foreign_keys": "[SupervisorAssignment.supervisor_id]"
         },
     )
 
 
 class SupervisorAssignment(SQLModel, table=True):
-    supervisor_id: int = Field(foreign_key="user.id", primary_key=True)
     preventionist_id: int = Field(foreign_key="user.id", primary_key=True)
+    supervisor_id: int = Field(foreign_key="user.id", primary_key=True)
 
-    supervisor: "User" = Relationship(
-        back_populates="supervised_preventionists",
-        sa_relationship_kwargs={"foreign_keys": "[SupervisorAssignment.supervisor_id]"},
-    )
     preventionist: "User" = Relationship(
-        back_populates="supervisor_assigned",
+        back_populates="supervisors_assigned",
+        sa_relationship_kwargs={"foreign_keys": "[SupervisorAssignment.preventionist_id]"},
+    )
+    supervisor: "User" = Relationship(
+        back_populates="preventionist_assigned",
         sa_relationship_kwargs={
-            "foreign_keys": "[SupervisorAssignment.preventionist_id]"
+            "foreign_keys": "[SupervisorAssignment.supervisor_id]"
         },
     )
 

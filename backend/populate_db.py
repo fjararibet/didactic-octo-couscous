@@ -364,7 +364,7 @@ def populate():
 
             # Create Assignment
             assignment = SupervisorAssignment(
-                supervisor_id=supervisor.id, preventionist_id=prev.id
+                preventionist_id=prev.id, supervisor_id=supervisor.id
             )
             session.add(assignment)
 
