@@ -11,7 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { activityStatusColors } from '../../styles/colors';
+import { activityStatusBadgeColors } from '../../styles/colors';
 import { calculateActivityStatus } from '../../lib/utils';
 
 interface SupervisorActivityDetailModalProps {
@@ -61,15 +61,9 @@ const SupervisorActivityDetailModal = ({
       done: 'Completado',
     };
 
-    const badgeColors: Record<Activity["status"], string> = {
-      pending: activityStatusColors.pending.replace("bg-", "bg-opacity-20 text-"),
-      in_progress: activityStatusColors.in_progress.replace("bg-", "bg-opacity-20 text-"),
-      done: activityStatusColors.done.replace("bg-", "bg-opacity-20 text-"),
-    };
-
     return (
       <span
-        className={`px-3 py-1 rounded-full text-sm font-medium ${badgeColors[status]}`}
+        className={`px-3 py-1 rounded-full text-sm font-medium ${activityStatusBadgeColors[status]}`}
       >
         {labels[status]}
       </span>
