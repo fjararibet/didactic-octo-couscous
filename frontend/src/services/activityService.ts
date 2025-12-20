@@ -1,4 +1,4 @@
-import type { Activity, CreateActivityDto, CreateTodoDto, TodoItem, UpdateActivityDto, ActivityWithSupervisors } from '@/types/activity';
+import type { Activity, CreateActivityDto, CreateTodoDto, TodoItem, UpdateActivityDto, ActivityWithSupervisors, TodoStatus } from '@/types/activity';
 import { authService } from './authService';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -168,7 +168,7 @@ export const activityService = {
       method: 'POST',
       body: JSON.stringify({
         description: data.description,
-        is_done: false,
+        status: 'pending',
         activity_id: data.activity_id,
       }),
     });
@@ -180,26 +180,12 @@ export const activityService = {
     return await response.json();
   },
 
-  // Toggle todo status
-  async toggleTodoStatus(todoId: number): Promise<TodoItem | null> {
-    // First, get the current todo to know its current state
-    const todoResponse = await authService.fetchWithAuth(`${API_URL}/todos/${todoId}`);
-
-    if (todoResponse.status === 404) {
-      return null;
-    }
-
-    if (!todoResponse.ok) {
-      throw new Error('Failed to fetch todo');
-    }
-
-    const todo: TodoItem = await todoResponse.json();
-
-    // Update with toggled status
+  // Update todo status
+  async updateTodoStatus(todoId: number, status: TodoStatus): Promise<TodoItem | null> {
     const response = await authService.fetchWithAuth(`${API_URL}/todos/${todoId}`, {
       method: 'PATCH',
       body: JSON.stringify({
-        is_done: !todo.is_done,
+        status: status,
       }),
     });
 
@@ -232,7 +218,7 @@ export const activityService = {
 
     const upcomingActivities = activities
       .filter(activity => {
-        const isDone = activity.todos.length > 0 && activity.todos.every(t => t.is_done);
+        const isDone = activity.todos.length > 0 && activity.todos.every(t => t.status === 'yes' || t.status === 'not_apply');
         return !isDone && activity.scheduled_date && new Date(activity.scheduled_date) >= now;
       })
       .sort((a, b) => new Date(a.scheduled_date!).getTime() - new Date(b.scheduled_date!).getTime());

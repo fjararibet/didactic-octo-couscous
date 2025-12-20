@@ -11,7 +11,7 @@ export function calculateActivityStatus(activity: Activity): Activity['status'] 
     return 'pending';
   }
 
-  const doneTodos = activity.todos.filter(todo => todo.is_done).length;
+  const doneTodos = activity.todos.filter(todo => todo.status === 'yes' || todo.status === 'not_apply').length;
 
   if (doneTodos === 0) {
     return 'pending';
