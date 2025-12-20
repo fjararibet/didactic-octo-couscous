@@ -8,6 +8,7 @@ import { StatusesPieChart } from './StatusesPieChart';
 import { activityService } from '@/services/activityService';
 import type { Activity } from '@/types/activity';
 import SupervisorActivityDetailModal from './SupervisorActivityDetailModal';
+import { calculateActivityStatus } from '@/lib/utils';
 
 
 const SupervisorDashboard = () => {
@@ -46,7 +47,9 @@ const SupervisorDashboard = () => {
 
   const handleCloseModal = () => {
     setSelectedActivity(null);
-    fetchNextActivity();
+    if (nextActivity && calculateActivityStatus(nextActivity) === 'done') {
+      fetchNextActivity();
+    }
   };
 
   if (!user) {

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { activityService } from '@/services/activityService';
 import { TrendingUp, TrendingDown, Calendar, CheckCircle2, ListTodo, Clock } from 'lucide-react';
+import type { DetailedStats } from '@/types/activity';
 
 const COLORS = {
   pending: '#facc15',
@@ -27,11 +28,12 @@ interface SupervisorStatsModalProps {
 }
 
 export const SupervisorStatsModal = ({ isOpen, onClose, userId, supervisorName }: SupervisorStatsModalProps) => {
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<DetailedStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(true);
       activityService.getDetailedActivityStats(userId)
         .then((data) => {

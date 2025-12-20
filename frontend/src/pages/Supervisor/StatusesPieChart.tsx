@@ -4,6 +4,7 @@ import { activityService } from '@/services/activityService';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar, CheckCircle2, ListTodo, Clock, TrendingUp, TrendingDown } from 'lucide-react';
+import type { DetailedStats } from '@/types/activity';
 
 const COLORS = {
   pending: '#facc15',
@@ -43,10 +44,11 @@ const statusReverseTranslations: { [key: string]: string } = Object.fromEntries(
 
 export const StatusesPieChart = ({ userId }: { userId: number }) => {
   const [data, setData] = useState<{ name: string; value: number }[]>([]);
-  const [detailedStats, setDetailedStats] = useState<any>(null);
+  const [detailedStats, setDetailedStats] = useState<DetailedStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     Promise.all([
       activityService.getActivityStatusStats(userId),
