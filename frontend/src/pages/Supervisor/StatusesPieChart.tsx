@@ -111,7 +111,7 @@ export const StatusesPieChart = ({ userId }: { userId: number }) => {
     <div className="space-y-3">
       {/* KPI Cards */}
       <div className="grid grid-cols-2 gap-1.5">
-        <Card className="px-2 py-1.5">
+        <Card className="flex flex-col items-center justify-center py-1.5">
           <div className="flex items-center gap-1">
             <Calendar className="w-3 h-3 text-gray-500" />
             <p className="text-xs text-gray-600">Total</p>
@@ -121,7 +121,7 @@ export const StatusesPieChart = ({ userId }: { userId: number }) => {
           </p>
         </Card>
 
-        <Card className="px-2 py-1.5">
+        <Card className="flex flex-col items-center justify-center py-1.5">
           <div className="flex items-center gap-1">
             <Clock className="w-3 h-3 text-gray-500" />
             <p className="text-xs text-gray-600">Próximas</p>
@@ -131,7 +131,7 @@ export const StatusesPieChart = ({ userId }: { userId: number }) => {
           </p>
         </Card>
 
-        <Card className="px-2 py-1.5">
+        <Card className="flex flex-col items-center justify-center py-1.5">
           <div className="flex items-center gap-1">
             <CheckCircle2 className="w-3 h-3 text-gray-500" />
             <p className="text-xs text-gray-600">Cumplimiento</p>
@@ -151,7 +151,7 @@ export const StatusesPieChart = ({ userId }: { userId: number }) => {
           </div>
         </Card>
 
-        <Card className="px-2 py-1.5">
+        <Card className="flex flex-col items-center justify-center py-1.5">
           <div className="flex items-center gap-1">
             <ListTodo className="w-3 h-3 text-gray-500" />
             <p className="text-xs text-gray-600">Tareas</p>
