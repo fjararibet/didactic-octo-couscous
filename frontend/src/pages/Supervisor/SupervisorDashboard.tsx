@@ -33,14 +33,9 @@ const SupervisorDashboard = () => {
 
         <Card className="w-full">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-blue-800">Bienvenido</CardTitle>
+            <CardTitle className="text-2xl font-bold text-blue-800">Estadísticas</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600">Bienvenido al área de gestión de supervisores.</p>
-            <div className="mt-4 p-4 border rounded-md bg-white">
-              <h3 className="font-semibold mb-2">Resumen de Actividad</h3>
-              <p className="text-sm text-gray-500">Aquí se mostrarán métricas y alertas relevantes para el rol de supervisión.</p>
-            </div>
             <StatusesPieChart userId={user.id} />
             <SupervisorCalendarView />
           </CardContent>
