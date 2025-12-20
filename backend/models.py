@@ -1,13 +1,26 @@
 from typing import List, Optional
 from datetime import datetime
 from sqlmodel import Field, Relationship, SQLModel
+from enum import Enum
+from sqlalchemy import Column
+
+
+class Role(str, Enum):
+    preventionist = "preventionist"
+    supervisor = "supervisor"
+
+
+class Status(str, Enum):
+    pending = "pending"
+    in_progress = "in_progress"
+    done = "done"
 
 
 class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     username: str = Field(index=True)
     email: str = Field(unique=True, index=True)
-    role: str  # "preventionist" or "supervisor"
+    role: Role = Field(sa_column=Column(Enum(Role)))
     password_hash: str
 
     activities_created: List["Activity"] = Relationship(
@@ -23,7 +36,7 @@ class User(SQLModel, table=True):
 class Activity(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
-    status: str = Field(default="pending")  # pending, in_progress, done
+    status: Status = Field(default=Status.pending, sa_column=Column(Enum(Status)))
     scheduled_date: datetime
     finished_date: Optional[datetime]
 
