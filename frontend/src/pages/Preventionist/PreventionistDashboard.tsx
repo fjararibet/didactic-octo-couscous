@@ -6,7 +6,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { userService } from '@/services/userService';
 import type { UserInfo } from '@/services/authService';
 import { User } from 'lucide-react';
-import { StatusesPieChart } from '../Supervisor/StatusesPieChart';
 
 const PreventionistDashboard = () => {
   const navigate = useNavigate();
@@ -107,9 +106,6 @@ const PreventionistDashboard = () => {
                       Supervisor
                     </p>
                     <p className="text-xs text-gray-600 mb-4">{supervisor.email}</p>
-
-                    {/* Chart */}
-                    <StatusesPieChart userId={supervisor.id} />
 
                     {/* Button */}
                     <Button

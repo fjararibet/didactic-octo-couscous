@@ -13,7 +13,7 @@ const SupervisorActivitiesPage = () => {
     <div className="p-8">
       <div className="mb-4">
         <Button asChild variant="outline">
-          <Link to="/preventionist/activities">Volver al Panel</Link>
+          <Link to="/dashboard/preventionist">Volver al Panel</Link>
         </Button>
       </div>
       <ActivityCalendarView userId={parseInt(supervisorId, 10)} />

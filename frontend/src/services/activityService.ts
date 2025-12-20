@@ -15,6 +15,27 @@ export const activityService = {
     return await response.json();
   },
 
+  // Get detailed activity stats for a user
+  async getDetailedActivityStats(userId: number): Promise<{
+    status_distribution: { [key: string]: number };
+    total_activities: number;
+    upcoming_activities: number;
+    completion_rate: number;
+    prev_completion_rate: number;
+    completion_trend: number;
+    avg_task_completion: number;
+    total_tasks: number;
+    completed_tasks: number;
+  }> {
+    const response = await authService.fetchWithAuth(`${API_URL}/activity/statuses_stats/detailed/${userId}`);
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch detailed activity stats');
+    }
+
+    return await response.json();
+  },
+
   // Get all activities for a user (by creator)
   async getActivitiesByCreator(userId: number): Promise<Activity[]> {
     const response = await authService.fetchWithAuth(`${API_URL}/activities/by-creator/${userId}`);

@@ -15,8 +15,9 @@ import ActivityDetailModal from './ActivityDetailModal';
 import NewActivityModal from './NewActivityModal';
 import TemplateDetailModal from './TemplateDetailModal';
 import esLocale from '@fullcalendar/core/locales/es';
-import { Calendar } from 'lucide-react';
+import { Calendar, BarChart3 } from 'lucide-react';
 import '../../styles/calendar.css';
+import { SupervisorStatsModal } from '../SupervisorStatsModal';
 import { activityStatusColors } from '../../styles/colors';
 import { calculateActivityStatus } from '../../lib/utils';
 
@@ -32,6 +33,7 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isNewActivityModalOpen, setIsNewActivityModalOpen] = useState(false);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
+  const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [supervisorName, setSupervisorName] = useState<string>('');
   const draggableContainerRef = useRef<HTMLDivElement>(null);
@@ -140,9 +142,15 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
         <h2 className="text-2xl font-bold text-gray-800">
           Calendario de Actividades de {supervisorName}
         </h2>
-        <Button onClick={() => setIsNewActivityModalOpen(true)}>
-          Nueva Plantilla de Actividad
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setIsStatsModalOpen(true)}>
+            <BarChart3 className="w-4 h-4 mr-2" />
+            Estadísticas
+          </Button>
+          <Button onClick={() => setIsNewActivityModalOpen(true)}>
+            Nueva Plantilla de Actividad
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
@@ -275,6 +283,13 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
           setIsTemplateModalOpen(false);
           setSelectedTemplate(null);
         }}
+      />
+
+      <SupervisorStatsModal
+        isOpen={isStatsModalOpen}
+        onClose={() => setIsStatsModalOpen(false)}
+        userId={userId}
+        supervisorName={supervisorName}
       />
     </div>
   );
