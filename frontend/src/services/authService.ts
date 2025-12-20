@@ -4,6 +4,7 @@ export interface LoginResponse {
   access_token: string;
   token_type: string;
   role: string;
+  userId?: number;
 }
 
 export interface UserInfo {
@@ -48,9 +49,10 @@ class AuthService {
     localStorage.setItem('user_role', data.role);
 
     // Fetch user info to get user ID
-    await this.fetchUserInfo();
+    const userInfo = await this.fetchUserInfo();
 
-    return data;
+    // Add userId to the response
+    return { ...data, userId: userInfo.id };
   }
 
   async fetchUserInfo(): Promise<UserInfo> {
