@@ -1,0 +1,8 @@
+app = "calendarizado"
+primary_region = "scl"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8000"
