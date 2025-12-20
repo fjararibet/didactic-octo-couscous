@@ -76,6 +76,159 @@ ACTIVITIES_DATA = [
             "Validar rutas de circulación peatonal",
             "Inspeccionar límites de velocidad"
         ]
+    },
+    {
+        "name": "Gestión de Residuos Peligrosos",
+        "todos": [
+            "Verificar etiquetado de contenedores",
+            "Comprobar estado de bandejas de contención",
+            "Revisar hojas de datos de seguridad (HDS)"
+        ]
+    },
+    {
+        "name": "Inspección de Grúas y Equipos de Izaje",
+        "todos": [
+            "Verificar certificación del operador",
+            "Revisar estado de eslingas y grilletes",
+            "Comprobar funcionamiento de alarmas de movimiento",
+            "Validar tabla de cargas en cabina"
+        ]
+    },
+    {
+        "name": "Monitoreo de Ruido y Polvo",
+        "todos": [
+            "Realizar mediciones con sonómetro",
+            "Verificar humectación de terrenos",
+            "Comprobar uso de mascarillas P100"
+        ]
+    },
+    {
+        "name": "Revisión de Botiquines de Primeros Auxilios",
+        "todos": [
+            "Verificar vigencia de medicamentos e insumos",
+            "Comprobar stock mínimo según inventario"
+        ]
+    },
+    {
+        "name": "Simulacro de Emergencia (Gabinete)",
+        "todos": [
+            "Evaluar tiempos de respuesta teóricos",
+            "Revisar directorio de contactos de emergencia",
+            "Validar conocimiento de rutas de evacuación",
+            "Comprobar estado de megáfonos y radios"
+        ]
+    },
+    {
+        "name": "Inspección de Herramientas Manuales",
+        "todos": [
+            "Verificar ausencia de mangos astillados",
+            "Revisar que no existan herramientas hechizas",
+            "Comprobar limpieza y almacenamiento"
+        ]
+    },
+    {
+        "name": "Control de Sustancias Químicas",
+        "todos": [
+            "Revisar etiquetado SGA (Sistema Global Armonizado)",
+            "Verificar almacenamiento en bodega ventilada",
+            "Comprobar kit antiderrames cercano",
+            "Validar compatibilidad química en el almacenamiento"
+        ]
+    },
+    {
+        "name": "Inspección de Andamios",
+        "todos": [
+            "Verificar tarjeta de 'Andamio Seguro' (verde)",
+            "Revisar nivelación de las bases",
+            "Comprobar presencia de barandas y rodapiés",
+            "Validar estado de las plataformas y tablones"
+        ]
+    },
+    {
+        "name": "Protección Contra Incendios (Sistemas Fijos)",
+        "todos": [
+            "Inspeccionar red húmeda/seca",
+            "Verificar señalética de pulsadores de alarma",
+            "Comprobar despeje de detectores de humo",
+            "Validar estado de bombas de incendio"
+        ]
+    },
+    {
+        "name": "Seguridad en Espacios Confinados",
+        "todos": [
+            "Validar medición de gases previa al ingreso",
+            "Verificar presencia de vigía en el exterior",
+            "Revisar equipo de ventilación forzada",
+            "Comprobar sistema de comunicación y rescate"
+        ]
+    },
+    {
+        "name": "Manejo Manual de Cargas",
+        "todos": [
+            "Observar técnicas de levantamiento de carga",
+            "Verificar cumplimiento de peso máximo permitido",
+            "Comprobar disponibilidad de ayudas mecánicas",
+            "Validar uso de guantes de agarre"
+        ]
+    },
+    {
+        "name": "Ergonomía en Puestos de Trabajo",
+        "todos": [
+            "Ajustar altura de sillas y monitores",
+            "Verificar pausas activas programadas",
+            "Comprobar iluminación adecuada en el puesto"
+        ]
+    },
+    {
+        "name": "Seguridad en Demoliciones",
+        "todos": [
+            "Verificar corte de servicios (agua/luz/gas)",
+            "Comprobar apuntalamientos preventivos",
+            "Revisar plan de retiro de escombros",
+            "Validar uso de protección respiratoria especial"
+        ]
+    },
+    {
+        "name": "Señalética y Protecciones Colectivas",
+        "todos": [
+            "Inspeccionar estado de mallas de seguridad",
+            "Verificar señalización de peligro de caída",
+            "Comprobar delimitación de zonas de excavación",
+            "Revisar estado de barandas perimetrales"
+        ]
+    },
+    {
+        "name": "Charlas de Seguridad (5 Minutos)",
+        "todos": [
+            "Verificar registro de asistencia firmado",
+            "Validar pertinencia del tema con los riesgos del día",
+            "Comprobar participación activa del personal"
+        ]
+    },
+    {
+        "name": "Control de Fatiga y Somnolencia",
+        "todos": [
+            "Revisar encuestas de inicio de jornada",
+            "Verificar disponibilidad de puntos de hidratación",
+            "Comprobar áreas de descanso con sombra"
+        ]
+    },
+    {
+        "name": "Trabajo con Calor (Soldadura/Oxicorte)",
+        "todos": [
+            "Verificar biombo protector contra chispas",
+            "Comprobar extintor PQS a pie de obra",
+            "Validar permiso de trabajo en caliente",
+            "Revisar estado de mangueras y válvulas antirretroceso"
+        ]
+    },
+    {
+        "name": "Protección Radiológica (Densímetros)",
+        "todos": [
+            "Verificar delimitación de zona controlada",
+            "Revisar uso de dosímetros personales",
+            "Validar curso de protección radiológica del operador"
+        ]
     }
 ]
 
