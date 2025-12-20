@@ -40,7 +40,6 @@ class Activity(SQLModel, table=True):
     status: Status = Field(default=Status.pending, sa_column=Column(SAEnum(Status)))
     scheduled_date: Optional[datetime] = None
     finished_date: Optional[datetime] = None
-
     created_by_id: Optional[int] = Field(default=None, foreign_key="user.id")
     created_by: Optional[User] = Relationship(
         back_populates="activities_created",
