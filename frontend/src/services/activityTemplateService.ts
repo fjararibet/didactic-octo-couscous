@@ -36,12 +36,16 @@ export const activityTemplateService = {
     return response.json();
   },
 
-  // Add a todo item to an activity template
-  addTodoToTemplate: async (templateId: number, todoData: { description: string }) => {
+  // Add todo items to an activity template
+  addTodoToTemplate: async (
+    templateId: number,
+    todoData: { description: string }[],
+  ) => {
+    const items = todoData.map(item => ({ description: item.description }));
     const response = await fetch(`${API_URL}/activity-templates/${templateId}/items`, {
       method: 'POST',
       headers: getHeaders(),
-      body: JSON.stringify(todoData),
+      body: JSON.stringify({ items }), // Wrap in an 'items' object
     });
     if (!response.ok) {
       throw new Error('Failed to add todo to template');

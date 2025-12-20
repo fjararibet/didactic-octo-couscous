@@ -56,11 +56,9 @@ const NewActivityModal = ({
       });
 
       if (newTemplate && checklist.length > 0) {
-        for (const item of checklist) {
-          await activityTemplateService.addTodoToTemplate(newTemplate.id, {
-            description: item,
-          });
-        }
+        await activityTemplateService.addTodoToTemplate(newTemplate.id, 
+          checklist.map(item => ({description: item}))
+        );
       }
 
       // Reset form

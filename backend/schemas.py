@@ -94,20 +94,23 @@ class ActivityTemplateRead(ActivityTemplateBase):
 
 class TemplateTodoItemBase(SQLModel):
     description: str
-    template_id: int
 
 
 class TemplateTodoItemCreate(TemplateTodoItemBase):
     pass
 
 
+class TemplateTodoItemCreateList(SQLModel):
+    items: list[TemplateTodoItemCreate]
+
+
 class TemplateTodoItemUpdate(SQLModel):
     description: Optional[str] = None
-    template_id: Optional[int] = None
 
 
 class TemplateTodoItemRead(TemplateTodoItemBase):
     id: int
+    template_id: int
 
 
 class Token(SQLModel):

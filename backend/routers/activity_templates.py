@@ -7,7 +7,7 @@ from schemas import (
     ActivityTemplateCreate,
     ActivityTemplateRead,
     ActivityTemplateUpdate,
-    TemplateTodoItemCreate,
+    TemplateTodoItemCreateList,
     TemplateTodoItemRead,
 )
 from routers.auth import get_current_preventionist
@@ -93,25 +93,32 @@ def delete_activity_template(
 
 
 @router.post(
-    "/{activity_template_id}/items", response_model=TemplateTodoItemRead, status_code=201
+    "/{activity_template_id}/items", response_model=List[TemplateTodoItemRead], status_code=201
 )
-def create_template_todo_item(
+def create_template_todo_items(
     *,
     session: Session = Depends(get_session),
     current_user: Annotated[User, Depends(get_current_preventionist)],
     activity_template_id: int,
-    item: TemplateTodoItemCreate,
+    items: TemplateTodoItemCreateList,
 ):
     activity_template = session.get(ActivityTemplate, activity_template_id)
     if not activity_template:
         raise HTTPException(status_code=404, detail="Activity Template not found")
 
-    db_item = TemplateTodoItem.model_validate(item)
-    db_item.template_id = activity_template_id
-    session.add(db_item)
+    created_items = []
+    for item_data in items.items:
+        db_item = TemplateTodoItem.model_validate(item_data)
+        db_item.template_id = activity_template_id
+        session.add(db_item)
+        created_items.append(db_item)
+
     session.commit()
-    session.refresh(db_item)
-    return db_item
+
+    for item in created_items:
+        session.refresh(item)
+
+    return created_items
 
 
 @router.get("/{activity_template_id}/items", response_model=List[TemplateTodoItemRead])
