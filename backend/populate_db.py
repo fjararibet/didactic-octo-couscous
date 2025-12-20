@@ -1,11 +1,34 @@
 import random
 import uuid
-from sqlmodel import Session, delete
+from datetime import date
+from sqlmodel import Session, delete, select
 from database import engine
-from models import User, Role, Status, SupervisorAssignment, Activity, TodoItem
+from models import (
+    User,
+    Role,
+    Status,
+    SupervisorAssignment,
+    Activity,
+    TodoItem,
+    ActivityTemplate,
+    TemplateTodoItem,
+)
 from security import get_password_hash
 
-# Static Data for Activities and their potential Todos
+
+def clear_db(session: Session):
+    print("Clearing existing data...")
+    session.exec(delete(TodoItem))
+    session.exec(delete(Activity))
+    session.exec(delete(SupervisorAssignment))
+    session.exec(delete(User))
+    session.exec(delete(TemplateTodoItem))
+    session.exec(delete(ActivityTemplate))
+    session.commit()
+
+
+
+
 ACTIVITIES_DATA = [
     {
         "name": "Inspección de Trabajo en Altura",
@@ -233,13 +256,21 @@ ACTIVITIES_DATA = [
 ]
 
 
-def clear_db(session: Session):
-    print("Clearing existing data...")
-    session.exec(delete(TodoItem))
-    session.exec(delete(Activity))
-    session.exec(delete(SupervisorAssignment))
-    session.exec(delete(User))
+def populate_activity_templates(session: Session):
+    print("Populating activity templates...")
+    for act_data in ACTIVITIES_DATA:
+        template = ActivityTemplate(name=act_data["name"])
+        session.add(template)
+        session.commit()
+        session.refresh(template)
+
+        for todo_desc in act_data["todos"]:
+            todo_template = TemplateTodoItem(
+                description=todo_desc, template_id=template.id
+            )
+            session.add(todo_template)
     session.commit()
+    print("Finished populating activity templates.")
 
 
 def populate():
@@ -247,6 +278,7 @@ def populate():
     session = Session(engine)
 
     clear_db(session)
+    populate_activity_templates(session)
 
     hashed_password = get_password_hash("pass")
 
@@ -278,6 +310,9 @@ def populate():
     total_supervisors = 0
     total_activities = 0
 
+    # Get all activity templates
+    activity_templates = session.exec(select(ActivityTemplate)).all()
+
     for prev in preventionists:
         # Each preventionist has between 5 and 20 supervisors
         num_supervisors = random.randint(5, 20)
@@ -304,16 +339,22 @@ def populate():
             session.add(assignment)
 
             # Create Activities for this Supervisor
-            # Randomly assign 2 to 5 activities per supervisor
-            num_activities = random.randint(2, 5)
+            # Randomly assign 15 to 20 activities per supervisor
+            num_activities = random.randint(15, 20)
 
             for _ in range(num_activities):
-                act_data = random.choice(ACTIVITIES_DATA)
+                # Choose a random activity template
+                template = random.choice(activity_templates)
+
+                scheduled_date = None
+                if random.random() < 0.5:  # Approximately 50% of activities will have a date
+                    day = random.randint(1, 31)
+                    scheduled_date = date(2025, 12, day)
 
                 activity = Activity(
-                    name=act_data["name"],
+                    name=template.name,
                     status=Status.pending,
-                    scheduled_date=None,
+                    scheduled_date=scheduled_date,
                     assigned_to_id=supervisor.id,
                     created_by_id=prev.id,
                 )
@@ -321,11 +362,12 @@ def populate():
                 session.commit()
                 session.refresh(activity)
 
-                # Create Todos for this Activity
-                # Always use all todos defined for the activity type
-                for todo_desc in act_data["todos"]:
+                # Create Todos for this Activity from the template
+                for todo_template in template.template_todos:
                     todo = TodoItem(
-                        description=todo_desc, is_done=False, activity_id=activity.id
+                        description=todo_template.description,
+                        is_done=False,
+                        activity_id=activity.id,
                     )
                     session.add(todo)
 

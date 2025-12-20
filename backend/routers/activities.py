@@ -27,9 +27,9 @@ def create_activity(
         template = session.get(ActivityTemplate, activity.activity_template_id)
         if not template:
             raise HTTPException(status_code=404, detail="Activity Template not found")
-        
+
         db_activity.name = template.name
-        
+
         for template_todo in template.template_todos:
             todo_item = TodoItem(
                 description=template_todo.description,
@@ -43,9 +43,7 @@ def create_activity(
     session.refresh(db_activity)
 
     # Refresh relationships to ensure they are loaded in the response
-    session.refresh(
-        db_activity, attribute_names=["created_by", "assigned_to", "todos"]
-    )
+    session.refresh(db_activity, attribute_names=["created_by", "assigned_to", "todos"])
 
     return db_activity
 
@@ -103,15 +101,16 @@ def update_activity(
     db_activity = session.get(Activity, activity_id)
     if not db_activity:
         raise HTTPException(status_code=404, detail="Activity not found")
-    
+
     activity_data = activity_update.model_dump(exclude_unset=True)
     for key, value in activity_data.items():
         setattr(db_activity, key, value)
-        
+
     session.add(db_activity)
     session.commit()
     session.refresh(db_activity)
     return db_activity
+
 
 @router.delete("/{activity_id}", status_code=204)
 def delete_activity(*, session: Session = Depends(get_session), activity_id: int):
