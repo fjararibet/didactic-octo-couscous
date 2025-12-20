@@ -65,3 +65,55 @@ export const assignTemplateToRandomWeekdayInMonth = async (
 
   await Promise.all(creationPromises);
 };
+
+export const assignUpToFiveActivitiesPerWeekday = async (
+  templates: ActivityTemplate[],
+  year: number,
+  month: number, // 1-12
+  assigneeId: number
+) => {
+  if (templates.length === 0) {
+    console.warn("No activity templates provided.");
+    return;
+  }
+
+  // 1. Create a "weekly schedule template" for the month.
+  const weeklySchedule = new Map<number, ActivityTemplate[]>();
+
+  for (let weekday = 1; weekday <= 5; weekday++) { // Monday to Friday
+    const numberOfActivities = Math.floor(Math.random() * 6); // 0 to 5
+    const activitiesForDay: ActivityTemplate[] = [];
+
+    for (let i = 0; i < numberOfActivities; i++) {
+      const randomTemplateIndex = Math.floor(Math.random() * templates.length);
+      activitiesForDay.push(templates[randomTemplateIndex]);
+    }
+    weeklySchedule.set(weekday, activitiesForDay);
+  }
+
+  // 2. Apply this template to every week in the month.
+  const creationPromises: Promise<void>[] = [];
+  const daysInMonth = new Date(year, month, 0).getDate();
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const currentDate = new Date(year, month - 1, day);
+    const dayOfWeek = currentDate.getDay();
+
+    if (weeklySchedule.has(dayOfWeek)) {
+      const activitiesForThisDay = weeklySchedule.get(dayOfWeek)!;
+
+      activitiesForThisDay.forEach(template => {
+        creationPromises.push(
+          createActivity({
+            name: template.name,
+            template_id: template.id,
+            date: currentDate.toISOString(),
+            assignee_id: assigneeId,
+          })
+        );
+      });
+    }
+  }
+
+  await Promise.all(creationPromises);
+};
