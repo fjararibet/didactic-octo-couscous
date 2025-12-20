@@ -224,13 +224,13 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
                   if (template) {
                     const newDate = `${info.dateStr}T12:00:00.000Z`;
                     try {
-                      await activityService.createActivity({
+                      const newActivity = await activityService.createActivity({
                         name: template.name,
                         scheduled_date: newDate,
                         assigned_to_id: userId,
                         activity_template_id: parseInt(templateId),
                       });
-                      loadData();
+                      setActivities(prevActivities => [...prevActivities, newActivity]);
                     } catch (error) {
                       console.error('Error creating activity from template:', error);
                     }
