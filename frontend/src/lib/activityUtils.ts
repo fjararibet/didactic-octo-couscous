@@ -1,5 +1,5 @@
-import { ActivityTemplate } from "@/types/activity";
-import { createActivity } from "@/services/activityService";
+import type { ActivityTemplate } from "@/types/activity";
+import { activityService } from "@/services/activityService";
 
 export const assignTemplateToRandomDayInMonth = async (
   template: ActivityTemplate,
@@ -25,11 +25,11 @@ export const assignTemplateToRandomDayInMonth = async (
 
   const randomDate = possibleDates[Math.floor(Math.random() * possibleDates.length)];
 
-  await createActivity({
+  await activityService.createActivity({
     name: template.name,
-    template_id: template.id,
-    date: randomDate.toISOString(),
-    assignee_id: assigneeId,
+    activity_template_id: template.id,
+    scheduled_date: randomDate.toISOString(),
+    assigned_to_id: assigneeId,
   });
 };
 
@@ -55,11 +55,11 @@ export const assignTemplateToRandomWeekdayInMonth = async (
 
   // 3. Create an activity for each of those dates
   const creationPromises = datesForWeekday.map(date =>
-    createActivity({
+    activityService.createActivity({
       name: template.name,
-      template_id: template.id,
-      date: date.toISOString(),
-      assignee_id: assigneeId,
+      activity_template_id: template.id,
+      scheduled_date: date.toISOString(),
+      assigned_to_id: assigneeId,
     })
   );
 
@@ -104,11 +104,11 @@ export const assignUpToFiveActivitiesPerWeekday = async (
 
       activitiesForThisDay.forEach(template => {
         creationPromises.push(
-          createActivity({
+          activityService.createActivity({
             name: template.name,
-            template_id: template.id,
-            date: currentDate.toISOString(),
-            assignee_id: assigneeId,
+            activity_template_id: template.id,
+            scheduled_date: currentDate.toISOString(),
+            assigned_to_id: assigneeId,
           })
         );
       });

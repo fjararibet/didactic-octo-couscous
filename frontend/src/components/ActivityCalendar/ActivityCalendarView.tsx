@@ -20,6 +20,7 @@ import '../../styles/calendar.css';
 import { SupervisorStatsModal } from '../SupervisorStatsModal';
 import { activityStatusColors } from '../../styles/colors';
 import { calculateActivityStatus } from '../../lib/utils';
+import { assignUpToFiveActivitiesPerWeekday } from '@/lib/activityUtils';
 import { isActivityMissed } from '@/types/activity';
 
 interface ActivityCalendarViewProps {
@@ -142,6 +143,18 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
     }
   };
 
+  const handleAssignActivities = async () => {
+    try {
+      const currentDate = new Date();
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth() + 1;
+      await assignUpToFiveActivitiesPerWeekday(activityTemplates, year, month, userId);
+      loadData();
+    } catch (error) {
+      console.error('Error assigning activities automatically:', error);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -152,6 +165,9 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
           <Button variant="outline" onClick={() => setIsStatsModalOpen(true)}>
             <BarChart3 className="w-4 h-4 mr-2" />
             Estadísticas
+          </Button>
+          <Button onClick={handleAssignActivities}>
+            Asignar Actividades Automáticamente
           </Button>
           <Button onClick={() => setIsNewActivityModalOpen(true)}>
             Nueva Plantilla de Actividad
