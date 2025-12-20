@@ -27,6 +27,15 @@ const getCardColorByStatus = (activity: Activity | null) => {
   }
 };
 
+const isSameDay = (dateString: string | null | undefined) => {
+  if (!dateString) return false;
+  const date = new Date(dateString);
+  const today = new Date();
+  return date.getDate() === today.getDate() &&
+         date.getMonth() === today.getMonth() &&
+         date.getFullYear() === today.getFullYear();
+};
+
 const SupervisorDashboard = () => {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
@@ -110,11 +119,16 @@ const SupervisorDashboard = () => {
                         }}
                         className={cn(
                           "absolute bottom-2 right-2",
-                          calculateActivityStatus(nextActivity) === 'done' ? "visible" : "invisible opacity-0 pointer-events-none"
+                          calculateActivityStatus(nextActivity) === 'done' && isSameDay(nextActivity.scheduled_date) ? "visible" : "invisible opacity-0 pointer-events-none"
                         )}
                       >
                         Siguiente Actividad
                       </Button>
+                      {calculateActivityStatus(nextActivity) !== 'done' && !isSameDay(nextActivity.scheduled_date) && (
+                        <p className="text-sm text-gray-500 absolute bottom-2 right-2">
+                          No hay más actividades para hoy. Próxima: {new Date(nextActivity.scheduled_date!).toLocaleDateString()}
+                        </p>
+                      )}
                     </div>
                   ) : (
                     <p>No hay actividades programadas próximamente.</p>
