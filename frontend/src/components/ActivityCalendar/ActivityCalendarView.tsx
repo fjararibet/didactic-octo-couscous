@@ -139,11 +139,18 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
     setNewActivityDate(null);
   };
 
-  // Handle activity updated
-  const handleActivityUpdated = () => {
-    loadActivities();
-    setIsDetailModalOpen(false);
-    setSelectedActivity(null);
+  // Handle activity updated (refresh without closing modal)
+  const handleActivityUpdated = async () => {
+    const updatedActivities = await activityService.getActivitiesByCreator(userId);
+    setActivities(updatedActivities);
+
+    // Update the selected activity with fresh data
+    if (selectedActivity) {
+      const updatedActivity = updatedActivities.find(a => a.id === selectedActivity.id);
+      if (updatedActivity) {
+        setSelectedActivity(updatedActivity);
+      }
+    }
   };
 
   // Handle event drop (when activity is dragged to new date)
@@ -157,7 +164,10 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
       await activityService.updateActivity(activity.id, {
         scheduled_date: newDate.toISOString(),
       });
-      loadActivities();
+
+      // Update state without full reload for smoother UX
+      const updatedActivities = await activityService.getActivitiesByCreator(userId);
+      setActivities(updatedActivities);
     } catch (error) {
       console.error('Error updating activity date:', error);
       dropInfo.revert();
@@ -275,7 +285,7 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
                 minute: '2-digit',
                 hour12: false,
               }}
-              drop={(info) => {
+              drop={async (info) => {
                 const activityId = info.draggedEl.getAttribute('data-activity-id');
                 if (activityId) {
                   const activity = unscheduledActivities.find(a => a.id === parseInt(activityId));
@@ -286,13 +296,17 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
                     const day = String(info.date.getDate()).padStart(2, '0');
                     const newDate = `${year}-${month}-${day}T12:00:00.000Z`;
 
-                    activityService.updateActivity(activity.id, {
-                      scheduled_date: newDate,
-                    }).then(() => {
-                      loadActivities();
-                    }).catch((error) => {
+                    try {
+                      await activityService.updateActivity(activity.id, {
+                        scheduled_date: newDate,
+                      });
+
+                      // Update state without full reload for smoother UX
+                      const updatedActivities = await activityService.getActivitiesByCreator(userId);
+                      setActivities(updatedActivities);
+                    } catch (error) {
                       console.error('Error scheduling activity:', error);
-                    });
+                    }
                   }
                 }
               }}

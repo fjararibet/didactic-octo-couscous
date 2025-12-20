@@ -10,7 +10,6 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle2, Circle, Plus } from 'lucide-react';
 
 interface ActivityDetailModalProps {
@@ -130,58 +129,64 @@ const ActivityDetailModal = ({
           </div>
 
           {/* Todo List */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <h3 className="text-lg font-semibold text-gray-800">Tareas</h3>
 
             {activity.todos.length === 0 ? (
-              <Card>
-                <CardContent className="py-8 text-center text-gray-500">
-                  No hay tareas asignadas a esta actividad
-                </CardContent>
-              </Card>
+              <div className="py-6 text-center text-gray-500 text-sm border border-gray-200 rounded-lg bg-gray-50">
+                No hay tareas asignadas a esta actividad
+              </div>
             ) : (
-              <div className="space-y-2">
-                {activity.todos.map(todo => (
-                  <Card key={todo.id}>
-                    <CardContent className="p-4">
-                      <div className="flex items-start gap-3">
-                        {todo.is_done ? (
-                          <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                        ) : (
-                          <Circle className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
-                        )}
-                        <span
-                          className={`flex-1 ${
-                            todo.is_done ? 'text-gray-500 line-through' : 'text-gray-800'
-                          }`}
-                        >
-                          {todo.description}
-                        </span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+              <div className="border border-gray-200 rounded-lg p-2 bg-gray-50">
+                <div className="space-y-1 max-h-60 overflow-y-auto">
+                  {activity.todos.map(todo => (
+                    <div
+                      key={todo.id}
+                      className="flex items-start gap-2 py-1.5 px-2 rounded hover:bg-white transition-colors"
+                    >
+                      {todo.is_done ? (
+                        <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
+                      ) : (
+                        <Circle className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />
+                      )}
+                      <span
+                        className={`flex-1 text-sm ${
+                          todo.is_done ? 'text-gray-500 line-through' : 'text-gray-800'
+                        }`}
+                      >
+                        {todo.description}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
 
           {/* Add New Todo */}
-          <div className="space-y-3 pt-4 border-t">
-            <h3 className="text-lg font-semibold text-gray-800">Agregar Nueva Tarea</h3>
+          <div className="space-y-2 pt-4 border-t">
+            <h3 className="text-base font-semibold text-gray-800">Agregar Nueva Tarea</h3>
             <div className="flex gap-2">
               <Input
                 placeholder="Descripción de la tarea..."
                 value={newTodoDescription}
                 onChange={e => setNewTodoDescription(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleAddTodo()}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddTodo();
+                  }
+                }}
                 disabled={isAddingTodo}
+                className="text-sm"
               />
               <Button
                 onClick={handleAddTodo}
                 disabled={!newTodoDescription.trim() || isAddingTodo}
+                size="sm"
               >
-                <Plus className="w-4 h-4 mr-2" />
-                Agregar
+                <Plus className="w-4 h-4" />
+                <span className="hidden sm:inline ml-1">Agregar</span>
               </Button>
             </div>
           </div>
