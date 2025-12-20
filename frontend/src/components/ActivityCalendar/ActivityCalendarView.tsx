@@ -280,7 +280,7 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
               height="auto"
               slotMinTime="07:00:00"
               slotMaxTime="19:00:00"
-              allDaySlot={false}
+              allDaySlot={true}
               nowIndicator={true}
               eventTimeFormat={{
                 hour: '2-digit',
@@ -291,6 +291,7 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
               eventDragMinDistance={5}
               longPressDelay={0}
               eventDurationEditable={false}
+              allDayText="Todo el día"
               drop={async (info) => {
                 const activityId = info.draggedEl.getAttribute('data-activity-id');
                 if (activityId) {
