@@ -21,6 +21,7 @@ import { SupervisorStatsModal } from '../SupervisorStatsModal';
 import { activityStatusColors } from '../../styles/colors';
 import { calculateActivityStatus } from '../../lib/utils';
 import { assignUpToFiveActivitiesPerWeekday } from '@/lib/activityUtils';
+import { LuSparkles } from "react-icons/lu";
 import { isActivityMissed } from '@/types/activity';
 
 interface ActivityCalendarViewProps {
@@ -66,7 +67,7 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
     if (draggableContainerRef.current) {
       const draggable = new Draggable(draggableContainerRef.current, {
         itemSelector: '.fc-event.template-card',
-        eventData: function (eventEl) {
+        eventData: function(eventEl) {
           const templateId = eventEl.getAttribute('data-template-id');
           return {
             id: `template-${templateId}`,
@@ -92,13 +93,12 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
 
     return {
       id: String(activity.id),
-      title: `${activity.name} ${
-        activity.todos.length > 0
+      title: `${activity.name} ${activity.todos.length > 0
           ? `(${Math.round(
-              (activity.todos.filter(t => t.status !== 'pending').length / activity.todos.length) * 100
-            )}%)`
+            (activity.todos.filter(t => t.status !== 'pending').length / activity.todos.length) * 100
+          )}%)`
           : ''
-      }`,
+        }`,
       start: activity.scheduled_date!,
       allDay: true,
       classNames: [colorClass],
@@ -166,8 +166,8 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
             <BarChart3 className="w-4 h-4 mr-2" />
             Estadísticas
           </Button>
-          <Button onClick={handleAssignActivities}>
-            Asignar Actividades Automáticamente
+          <Button className="bg-green-600" onClick={handleAssignActivities}>
+            <LuSparkles /> Asignar Actividades
           </Button>
           <Button onClick={() => setIsNewActivityModalOpen(true)}>
             Nueva Plantilla de Actividad
@@ -185,40 +185,40 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
           {activityTemplates.length > 0 ? (
             <div className="relative overflow-y-auto pr-2 max-h-[calc(100vh-250px)]" style={{ scrollbarWidth: 'thin' }}>
               <div ref={draggableContainerRef} className="space-y-2">
-              {activityTemplates.map(template => (
-                                  <div
-                                    key={template.id}
-                                    data-template-id={template.id}
-                                    className="fc-event p-4 rounded-xl cursor-move hover:shadow-2xl hover:scale-105 border-l-4 template-card relative group"
-                                    style={{
-                                      borderLeftColor: '#6b7280', // gray
-                                      backgroundColor: '#ffffff',
-                                      boxShadow: `0 2px 8px rgba(107, 114, 128, 0.25)`,
-                                      border: `2px solid #e5e7eb`,
-                                      borderLeftWidth: '6px',
-                                      transition: 'box-shadow 0.2s ease, transform 0.2s ease',
-                                    }}
-                                    onClick={(e) => {
-                                      // Only open modal if not dragging
-                                      if (e.currentTarget === e.target || e.currentTarget.contains(e.target as Node)) {
-                                        setSelectedTemplate(template);
-                                        setIsTemplateModalOpen(true);
-                                      }
-                                    }}
-                                  >
-                                    <div className="flex items-start justify-between gap-2">
-                                      <div className="flex-1">
-                                        <div className="font-bold text-sm text-gray-900 mb-1">{template.name}</div>
-                                        <div className="text-xs text-gray-500 font-medium">
-                                          {template.template_todos.length} tareas
-                                        </div>
-                                      </div>
-                                      <div
-                                        className="w-2 h-2 rounded-full mt-1 shrink-0"
-                                        style={{ backgroundColor: '#6b7280' }} // gray
-                                      />
-                                    </div>
-                                  </div>              ))}
+                {activityTemplates.map(template => (
+                  <div
+                    key={template.id}
+                    data-template-id={template.id}
+                    className="fc-event p-4 rounded-xl cursor-move hover:shadow-2xl hover:scale-105 border-l-4 template-card relative group"
+                    style={{
+                      borderLeftColor: '#6b7280', // gray
+                      backgroundColor: '#ffffff',
+                      boxShadow: `0 2px 8px rgba(107, 114, 128, 0.25)`,
+                      border: `2px solid #e5e7eb`,
+                      borderLeftWidth: '6px',
+                      transition: 'box-shadow 0.2s ease, transform 0.2s ease',
+                    }}
+                    onClick={(e) => {
+                      // Only open modal if not dragging
+                      if (e.currentTarget === e.target || e.currentTarget.contains(e.target as Node)) {
+                        setSelectedTemplate(template);
+                        setIsTemplateModalOpen(true);
+                      }
+                    }}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1">
+                        <div className="font-bold text-sm text-gray-900 mb-1">{template.name}</div>
+                        <div className="text-xs text-gray-500 font-medium">
+                          {template.template_todos.length} tareas
+                        </div>
+                      </div>
+                      <div
+                        className="w-2 h-2 rounded-full mt-1 shrink-0"
+                        style={{ backgroundColor: '#6b7280' }} // gray
+                      />
+                    </div>
+                  </div>))}
               </div>
             </div>
           ) : (

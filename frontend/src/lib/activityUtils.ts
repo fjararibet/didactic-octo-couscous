@@ -1,4 +1,5 @@
 import type { ActivityTemplate } from "@/types/activity";
+import { getActivityStatus } from "@/types/activity";
 import { activityService } from "@/services/activityService";
 
 export const assignTemplateToRandomDayInMonth = async (
@@ -87,6 +88,26 @@ export const assignUpToFiveActivitiesPerWeekday = async (
     return;
   }
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Normalize today to start of day
+
+  // Delete all not-done activities from today onwards
+  const activities = await activityService.getActivitiesByAssignee(assigneeId);
+  const activitiesToDelete = activities.filter(activity => {
+    const status = getActivityStatus(activity);
+    const scheduledDate = activity.scheduled_date ? new Date(activity.scheduled_date) : null;
+    if (scheduledDate) {
+      scheduledDate.setHours(0, 0, 0, 0);
+    }
+    return status !== 'done' && scheduledDate && scheduledDate >= today;
+  });
+
+  if (activitiesToDelete.length > 0) {
+    await Promise.all(
+      activitiesToDelete.map(activity => activityService.deleteActivity(activity.id))
+    );
+  }
+
   // 1. Create a "weekly schedule template" for the month.
   const weeklySchedule = new Map<number, ActivityTemplate[]>();
 
@@ -104,9 +125,6 @@ export const assignUpToFiveActivitiesPerWeekday = async (
   // 2. Apply this template to every week in the month.
   const creationPromises: Promise<void>[] = [];
   const daysInMonth = new Date(year, month, 0).getDate();
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // Normalize today to start of day
 
   for (let day = 1; day <= daysInMonth; day++) {
     const currentDate = new Date(year, month - 1, day);

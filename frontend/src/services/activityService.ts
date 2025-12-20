@@ -165,6 +165,17 @@ export const activityService = {
     return await response.json();
   },
 
+  // Delete an activity
+  async deleteActivity(id: number): Promise<void> {
+    const response = await authService.fetchWithAuth(`${API_URL}/activities/${id}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete activity');
+    }
+  },
+
   // Add a todo to an activity
   async addTodoToActivity(data: CreateTodoDto): Promise<TodoItem> {
     const response = await authService.fetchWithAuth(`${API_URL}/todos/`, {
