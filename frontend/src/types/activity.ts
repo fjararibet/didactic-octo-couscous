@@ -37,7 +37,7 @@ export interface Activity {
   todos: TodoItem[];
 }
 
-export type ActivityStatus = 'pending' | 'in_progress' | 'done' | 'missed';
+export type ActivityStatus = 'pending' | 'in_progress' | 'done';
 
 export const getActivityStatus = (activity: Activity): ActivityStatus => {
   if (!activity.todos || activity.todos.length === 0) {

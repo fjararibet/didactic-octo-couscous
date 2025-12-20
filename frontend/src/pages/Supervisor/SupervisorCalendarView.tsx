@@ -57,15 +57,20 @@ const SupervisorCalendarView = () => {
   };
 
   const scheduledActivities = activities.filter(activity => activity.scheduled_date !== null);
-  
+
   const events = scheduledActivities.map(activity => {
     const status = calculateActivityStatus(activity);
+    const isMissed = isActivityMissed(activity, status);
+
+    // Use "missed" color if activity is missed, otherwise use status color
+    const colorClass = isMissed ? activityStatusColors.missed : activityStatusColors[status];
+
     return {
       id: String(activity.id),
       title: activity.name,
       start: activity.scheduled_date!,
       allDay: true,
-      classNames: isActivityMissed(activity, status) ? ["bg-gray-400"] : [activityStatusColors[status]],
+      classNames: [colorClass],
       extendedProps: { activity: { ...activity, status } },
     };
   });
