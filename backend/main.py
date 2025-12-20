@@ -28,12 +28,12 @@ app.add_middleware(
 )
 
 
-app.include_router(auth.router, prefix="/auth")
-app.include_router(users.router, prefix="/users")
-app.include_router(activities.router, prefix="/activities")
-app.include_router(todos.router, prefix="/todos")
-app.include_router(activity_templates.router, prefix="/activity-templates")
-app.include_router(todos_template.router, prefix="/todos-template")
+app.include_router(auth.router)
+app.include_router(users.router)
+app.include_router(activities.router)
+app.include_router(todos.router)
+app.include_router(activity_templates.router)
+app.include_router(todos_template.router)
 
 
 @app.get("/")

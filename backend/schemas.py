@@ -23,6 +23,8 @@ class UserUpdate(SQLModel):
 # Properties to return to client
 class UserRead(UserBase):
     id: int
+    username: str
+    email: str
 
 
 class SupervisorAssignmentCreate(SQLModel):

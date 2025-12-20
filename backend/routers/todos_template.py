@@ -10,7 +10,7 @@ from schemas import (
 )
 from routers.auth import get_current_preventionist
 
-router = APIRouter(tags=["todos-template"])
+router = APIRouter(prefix="/todos-template", tags=["todos-template"])
 
 
 @router.post("/", response_model=TemplateTodoItemRead, status_code=201)

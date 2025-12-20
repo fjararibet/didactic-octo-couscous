@@ -16,7 +16,7 @@ from security import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
 )
 
-router = APIRouter(tags=["auth"])
+router = APIRouter(prefix="/auth", tags=["auth"])
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 

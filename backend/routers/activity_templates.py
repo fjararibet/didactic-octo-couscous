@@ -12,7 +12,7 @@ from schemas import (
 )
 from routers.auth import get_current_preventionist
 
-router = APIRouter(tags=["activity-templates"])
+router = APIRouter(prefix="/activity-templates", tags=["activity-templates"])
 
 
 @router.post("/", response_model=ActivityTemplateRead, status_code=201)

@@ -7,6 +7,7 @@ import listPlugin from '@fullcalendar/list';
 import type { EventClickArg, DateSelectArg, EventDropArg } from '@fullcalendar/core';
 import type { Activity } from '@/types/activity';
 import { activityService } from '@/services/activityService';
+import { userService } from '@/services/userService'; // Import userService
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import ActivityDetailModal from './ActivityDetailModal';
@@ -26,8 +27,23 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
   const [isNewActivityModalOpen, setIsNewActivityModalOpen] = useState(false);
   const [newActivityDate, setNewActivityDate] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [supervisorName, setSupervisorName] = useState<string>(''); // Add supervisorName state
   const draggableRef = useRef<HTMLDivElement>(null);
   const draggableInstanceRef = useRef<Draggable | null>(null);
+
+  // Get status color
+  const getStatusColor = (status: Activity['status']) => {
+    switch (status) {
+      case 'pending':
+        return '#f59e0b'; // amber
+      case 'in_progress':
+        return '#3b82f6'; // blue
+      case 'done':
+        return '#10b981'; // green
+      default:
+        return '#6b7280'; // gray
+    }
+  };
 
   // Load activities
   const loadActivities = useCallback(async () => {
@@ -42,14 +58,26 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
     }
   }, [userId]);
 
+  // Load supervisor name
+  const loadSupervisorName = useCallback(async () => {
+    try {
+      const user = await userService.getUserById(userId);
+      setSupervisorName(user.username);
+    } catch (error) {
+      console.error('Error loading supervisor name:', error);
+    }
+  }, [userId]);
+
   useEffect(() => {
     loadActivities();
-  }, [loadActivities]);
+    loadSupervisorName();
+  }, [loadActivities, loadSupervisorName]);
 
   // Initialize draggable for unscheduled activities
   useEffect(() => {
     if (draggableRef.current && !draggableInstanceRef.current) {
       draggableInstanceRef.current = new Draggable(draggableRef.current, {
+
         itemSelector: '.fc-event',
         longPressDelay: 0,
         eventData: function(eventEl) {
@@ -82,24 +110,6 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
       }
     };
   }, [activities]);
-
-  // Get status color
-  const getStatusColor = (status: Activity['status']) => {
-    switch (status) {
-      case 'pending':
-        return '#f59e0b'; // amber
-      case 'in_progress':
-        return '#3b82f6'; // blue
-      case 'done':
-        return '#10b981'; // green
-      default:
-        return '#6b7280'; // gray
-    }
-  };
-
-  // Separate scheduled and unscheduled activities
-  const scheduledActivities = activities.filter(a => a.scheduled_date !== null);
-  const unscheduledActivities = activities.filter(a => a.scheduled_date === null);
 
   // Convert scheduled activities to calendar events
   const events = scheduledActivities.map(activity => {
@@ -188,7 +198,7 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Calendario de Actividades</h2>
+        <h2 className="text-2xl font-bold text-gray-800">Calendario de Actividades de {supervisorName}</h2>
         <Button onClick={() => setIsNewActivityModalOpen(true)}>
           Nueva Actividad
         </Button>
