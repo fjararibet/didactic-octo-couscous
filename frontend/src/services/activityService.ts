@@ -57,7 +57,6 @@ export const activityService = {
       method: 'POST',
       body: JSON.stringify({
         name: data.name,
-        status: 'pending',
         scheduled_date: data.scheduled_date ?? null,
         finished_date: null,
         assigned_to_id: data.assigned_to_id ?? null,
@@ -78,12 +77,6 @@ export const activityService = {
     const updatePayload: Partial<UpdateActivityDto> & { finished_date?: string | null } = {};
 
     if (data.name !== undefined) updatePayload.name = data.name;
-    if (data.status !== undefined) {
-      updatePayload.status = data.status;
-      if (data.status === 'done') {
-        updatePayload.finished_date = new Date().toISOString();
-      }
-    }
     if (data.scheduled_date !== undefined) {
       updatePayload.scheduled_date = data.scheduled_date;
     }
@@ -105,11 +98,6 @@ export const activityService = {
     }
 
     return await response.json();
-  },
-
-  // Update activity status
-  async updateActivityStatus(id: number, status: Activity['status']): Promise<Activity | null> {
-    return this.updateActivity(id, { status });
   },
 
   // Add a todo to an activity

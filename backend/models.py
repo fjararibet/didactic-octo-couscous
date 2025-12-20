@@ -11,10 +11,6 @@ class Role(str, Enum):
     admin = "admin"
 
 
-class Status(str, Enum):
-    pending = "pending"
-    in_progress = "in_progress"
-    done = "done"
 
 
 class User(SQLModel, table=True):
@@ -64,7 +60,6 @@ class SupervisorAssignment(SQLModel, table=True):
 class Activity(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
-    status: Status = Field(default=Status.pending, sa_column=Column(SAEnum(Status)))
     scheduled_date: Optional[datetime] = None
     finished_date: Optional[datetime] = None
     created_by_id: Optional[int] = Field(default=None, foreign_key="user.id")

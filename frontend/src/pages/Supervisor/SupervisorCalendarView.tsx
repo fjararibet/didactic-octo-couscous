@@ -58,7 +58,6 @@ const SupervisorCalendarView = () => {
   
   const events = scheduledActivities.map(activity => {
     const status = calculateActivityStatus(activity);
-    console.log(activity);
     return {
       id: String(activity.id),
       title: activity.name,

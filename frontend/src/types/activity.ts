@@ -15,7 +15,6 @@ export interface TodoItem {
 export interface Activity {
   id: number;
   name: string;
-  status: 'pending' | 'in_progress' | 'done';
   scheduled_date: string | null;
   finished_date: string | null;
   created_by_id: number;
@@ -41,6 +40,27 @@ export interface Activity {
   }[];
 }
 
+export type ActivityStatus = 'pending' | 'in_progress' | 'done';
+
+export const getActivityStatus = (activity: Activity): ActivityStatus => {
+  if (!activity.todos || activity.todos.length === 0) {
+    return 'pending';
+  }
+
+  const doneCount = activity.todos.filter((todo) => todo.is_done).length;
+
+  if (doneCount === 0) {
+    return 'pending';
+  }
+
+  if (doneCount === activity.todos.length) {
+    return 'done';
+  }
+
+  return 'in_progress';
+};
+
+
 export interface ActivityTemplate {
   id: number;
   name: string;
@@ -62,7 +82,6 @@ export interface CreateActivityDto {
 
 export interface UpdateActivityDto {
   name?: string;
-  status?: 'pending' | 'in_progress' | 'done';
   scheduled_date?: string | null;
   assigned_to_id?: number;
 }
@@ -82,7 +101,7 @@ export interface ActivityWithSupervisors {
 
 export const isActivityMissed = (
   activity: Activity,
-  status: Activity['status']
+  status: ActivityStatus
 ): boolean => {
   if (status === "done") {
     return false;

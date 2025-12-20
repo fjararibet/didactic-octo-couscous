@@ -6,7 +6,6 @@ from database import engine
 from models import (
     User,
     Role,
-    Status,
     SupervisorAssignment,
     Activity,
     TodoItem,
@@ -384,7 +383,6 @@ def populate():
 
                 activity = Activity(
                     name=template.name,
-                    status=Status.pending,
                     scheduled_date=scheduled_date,
                     assigned_to_id=supervisor.id,
                     created_by_id=prev.id,

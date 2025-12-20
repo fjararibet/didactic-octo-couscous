@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Optional
 from datetime import datetime
 from sqlmodel import SQLModel
-from models import Role, Status
+from models import Role
 
 # Shared properties
 class UserBase(SQLModel):
@@ -36,7 +36,6 @@ class SupervisorAssignmentCreate(SQLModel):
 # Shared properties
 class ActivityBase(SQLModel):
     name: str
-    status: Status = Status.pending
     scheduled_date: Optional[datetime] = None
     finished_date: Optional[datetime] = None
     assigned_to_id: int
@@ -48,7 +47,6 @@ class ActivityCreate(ActivityBase):
 
 class ActivityUpdate(SQLModel):
     name: Optional[str] = None
-    status: Optional[Status] = None
     scheduled_date: Optional[datetime] = None
     finished_date: Optional[datetime] = None
     assigned_to_id: Optional[int] = None
