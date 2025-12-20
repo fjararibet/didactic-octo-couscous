@@ -11,9 +11,14 @@ export const assignTemplateToRandomDayInMonth = async (
   const daysInMonth = new Date(year, month, 0).getDate();
   const possibleDates: Date[] = [];
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Normalize today to start of day
+
   for (let day = 1; day <= daysInMonth; day++) {
     const currentDate = new Date(year, month - 1, day);
-    if (currentDate.getDay() === targetWeekday) {
+    currentDate.setHours(0, 0, 0, 0); // Normalize current date to start of day
+
+    if (currentDate >= today && currentDate.getDay() === targetWeekday) {
       possibleDates.push(currentDate);
     }
   }
@@ -46,9 +51,14 @@ export const assignTemplateToRandomWeekdayInMonth = async (
   const daysInMonth = new Date(year, month, 0).getDate();
   const datesForWeekday: Date[] = [];
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Normalize today to start of day
+
   for (let day = 1; day <= daysInMonth; day++) {
     const currentDate = new Date(year, month - 1, day);
-    if (currentDate.getDay() === randomWeekday) {
+    currentDate.setHours(0, 0, 0, 0); // Normalize current date to start of day
+
+    if (currentDate >= today && currentDate.getDay() === randomWeekday) {
       datesForWeekday.push(currentDate);
     }
   }
@@ -95,23 +105,30 @@ export const assignUpToFiveActivitiesPerWeekday = async (
   const creationPromises: Promise<void>[] = [];
   const daysInMonth = new Date(year, month, 0).getDate();
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Normalize today to start of day
+
   for (let day = 1; day <= daysInMonth; day++) {
     const currentDate = new Date(year, month - 1, day);
-    const dayOfWeek = currentDate.getDay();
+    currentDate.setHours(0, 0, 0, 0); // Normalize current date to start of day
 
-    if (weeklySchedule.has(dayOfWeek)) {
-      const activitiesForThisDay = weeklySchedule.get(dayOfWeek)!;
+    if (currentDate >= today) {
+      const dayOfWeek = currentDate.getDay();
 
-      activitiesForThisDay.forEach(template => {
-        creationPromises.push(
-          activityService.createActivity({
-            name: template.name,
-            activity_template_id: template.id,
-            scheduled_date: currentDate.toISOString(),
-            assigned_to_id: assigneeId,
-          })
-        );
-      });
+      if (weeklySchedule.has(dayOfWeek)) {
+        const activitiesForThisDay = weeklySchedule.get(dayOfWeek)!;
+
+        activitiesForThisDay.forEach(template => {
+          creationPromises.push(
+            activityService.createActivity({
+              name: template.name,
+              activity_template_id: template.id,
+              scheduled_date: currentDate.toISOString(),
+              assigned_to_id: assigneeId,
+            })
+          );
+        });
+      }
     }
   }
 
