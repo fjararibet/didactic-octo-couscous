@@ -1,6 +1,6 @@
 import random
 import uuid
-from sqlmodel import Session
+from sqlmodel import Session, delete
 from database import engine
 from models import User, Role, Status, SupervisorAssignment, Activity, TodoItem
 from security import get_password_hash
@@ -79,9 +79,19 @@ ACTIVITIES_DATA = [
     }
 ]
 
+def clear_db(session: Session):
+    print("Clearing existing data...")
+    session.exec(delete(TodoItem))
+    session.exec(delete(Activity))
+    session.exec(delete(SupervisorAssignment))
+    session.exec(delete(User))
+    session.commit()
+
 def populate():
     print("Starting database population...")
     session = Session(engine)
+    
+    clear_db(session)
     
     hashed_password = get_password_hash("pass")
     
@@ -89,8 +99,9 @@ def populate():
     preventionists = []
     print("Creating Preventionists...")
     for i in range(5):
-        username = f"prev_{i}"
-        email = f"prev_{i}@example.com"
+        uid = str(uuid.uuid4())[:8]
+        username = f"prev_{uid}"
+        email = f"prev_{uid}@example.com"
         
         user = User(
             username=username,
@@ -117,8 +128,9 @@ def populate():
         num_supervisors = random.randint(5, 20)
         
         for j in range(num_supervisors):
-            username = f"sup_{j}"
-            email = f"sup_{j}@example.com"
+            uid = str(uuid.uuid4())[:8]
+            username = f"sup_{uid}"
+            email = f"sup_{uid}@example.com"
             
             supervisor = User(
                 username=username,
@@ -138,7 +150,7 @@ def populate():
             session.add(assignment)
             
             # Create Activities for this Supervisor
-            # Randomly assign 2 to 5 activities per supervisor to make it realistic
+            # Randomly assign 2 to 5 activities per supervisor
             num_activities = random.randint(2, 5) 
             
             for _ in range(num_activities):
@@ -147,24 +159,17 @@ def populate():
                 activity = Activity(
                     name=act_data["name"],
                     status=Status.pending,
-                    scheduled_date=None, # Explicitly None as requested
+                    scheduled_date=None, 
                     assigned_to_id=supervisor.id,
-                    created_by_id=prev.id # Assigned by their preventionist
+                    created_by_id=prev.id
                 )
                 session.add(activity)
                 session.commit()
                 session.refresh(activity)
                 
                 # Create Todos for this Activity
-                # Between 1 and 5 todos
-                num_todos = random.randint(1, 5)
-                possible_todos = act_data["todos"]
-                
-                # Ensure we don't try to sample more than available (though max 5 matches max list length usually)
-                sample_size = min(num_todos, len(possible_todos))
-                selected_todos = random.sample(possible_todos, sample_size)
-                
-                for todo_desc in selected_todos:
+                # Always use all todos defined for the activity type
+                for todo_desc in act_data["todos"]:
                     todo = TodoItem(
                         description=todo_desc,
                         is_done=False,
