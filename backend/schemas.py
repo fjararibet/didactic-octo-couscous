@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Optional
 from datetime import datetime
 from sqlmodel import SQLModel
-from models import Role
+from models import Role, TodoStatus
 
 # Shared properties
 class UserBase(SQLModel):
@@ -60,7 +60,7 @@ class ActivityRead(ActivityBase):
 
 class TodoItemBase(SQLModel):
     description: str
-    is_done: bool = False
+    status: TodoStatus = TodoStatus.pending
     activity_id: int
 
 class TodoItemCreate(TodoItemBase):
@@ -68,7 +68,7 @@ class TodoItemCreate(TodoItemBase):
 
 class TodoItemUpdate(SQLModel):
     description: Optional[str] = None
-    is_done: Optional[bool] = None
+    status: Optional[TodoStatus] = None
     activity_id: Optional[int] = None
 
 class TodoItemRead(TodoItemBase):

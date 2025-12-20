@@ -11,6 +11,7 @@ from models import (
     TodoItem,
     ActivityTemplate,
     TemplateTodoItem,
+    TodoStatus,
 )
 from security import get_password_hash
 
@@ -395,7 +396,7 @@ def populate():
                 for todo_template in template.template_todos:
                     todo = TodoItem(
                         description=todo_template.description,
-                        is_done=False,
+                        status=TodoStatus.pending,
                         activity_id=activity.id,
                     )
                     session.add(todo)
