@@ -34,6 +34,14 @@ interface ActivityStats {
   avg_task_completion: number;
   total_tasks: number;
   completed_tasks: number;
+  supervisors_stats: {
+    id: number;
+    name: string;
+    assigned: number;
+    completed: number;
+    completed_on_time: number;
+    late: number;
+  }[];
 }
 
 export const GeneralStatsModal = ({ isOpen, onClose }: GeneralStatsModalProps) => {
@@ -60,11 +68,35 @@ export const GeneralStatsModal = ({ isOpen, onClose }: GeneralStatsModalProps) =
 
   if (!stats && !loading) return null;
 
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const getAvatarColor = (id: number) => {
+    const colors = [
+      'bg-blue-500',
+      'bg-green-500',
+      'bg-purple-500',
+      'bg-pink-500',
+      'bg-indigo-500',
+      'bg-teal-500',
+      'bg-orange-500',
+      'bg-cyan-500',
+    ];
+    return colors[id % colors.length];
+  };
+
   const chartData = stats ? Object.entries(stats.status_distribution).map(([name, value]) => ({
     name: statusTranslations[name] || name,
     value,
   })) : [];
-
+  
+  // ... rest of helper functions ...
   const getTrendIcon = (trend: number) => {
     if (trend > 0) return <TrendingUp className="w-4 h-4 text-green-500" />;
     if (trend < 0) return <TrendingDown className="w-4 h-4 text-red-500" />;
@@ -89,7 +121,7 @@ export const GeneralStatsModal = ({ isOpen, onClose }: GeneralStatsModalProps) =
           <div className="flex items-center justify-center py-8">
             <p className="text-gray-500">Cargando estadísticas...</p>
           </div>
-        ) : (
+        ) : stats && (
           <div className="space-y-6">
             {/* KPI Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -149,10 +181,70 @@ export const GeneralStatsModal = ({ isOpen, onClose }: GeneralStatsModalProps) =
               </Card>
             </div>
 
+            {/* Supervisor Stats Table */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Desempeño por Supervisor</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm text-left text-gray-500">
+                    <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                      <tr>
+                        <th scope="col" className="px-6 py-3">Supervisor</th>
+                        <th scope="col" className="px-6 py-3 text-center">Asignadas</th>
+                        <th scope="col" className="px-6 py-3 text-center">Completadas</th>
+                        <th scope="col" className="px-6 py-3 text-center text-green-600">A Tiempo</th>
+                        <th scope="col" className="px-6 py-3 text-center text-red-600">Atrasadas/Tardías</th>
+                        <th scope="col" className="px-6 py-3 text-center">Cumplimiento</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {stats.supervisors_stats.map((supervisor) => {
+                        const compliance = supervisor.assigned > 0 
+                          ? ((supervisor.completed / supervisor.assigned) * 100).toFixed(0) 
+                          : '0';
+                        return (
+                          <tr key={supervisor.id} className="bg-white border-b hover:bg-gray-50">
+                            <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                              <div 
+                                className={`w-8 h-8 rounded-full ${getAvatarColor(supervisor.id)} flex items-center justify-center shadow-sm cursor-help`}
+                                title={supervisor.name}
+                              >
+                                <span className="text-xs font-bold text-white">
+                                  {getInitials(supervisor.name)}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-center">{supervisor.assigned}</td>
+                            <td className="px-6 py-4 text-center">{supervisor.completed}</td>
+                            <td className="px-6 py-4 text-center font-medium text-green-600">{supervisor.completed_on_time}</td>
+                            <td className="px-6 py-4 text-center font-medium text-red-600">{supervisor.late}</td>
+                            <td className="px-6 py-4 text-center">
+                              <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                parseInt(compliance) >= 80 ? 'bg-green-100 text-green-800' :
+                                parseInt(compliance) >= 50 ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-red-100 text-red-800'
+                              }`}>
+                                {compliance}%
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                  {stats.supervisors_stats.length === 0 && (
+                    <p className="text-center py-4 text-gray-500">No hay datos de supervisores disponibles.</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Distribution Chart */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Distribución por Estado</CardTitle>
+                <CardTitle className="text-lg">Distribución por Estado (Global)</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col md:flex-row items-center justify-around gap-4">
                 <div className="w-full md:w-1/2 flex justify-center">
@@ -212,27 +304,6 @@ export const GeneralStatsModal = ({ isOpen, onClose }: GeneralStatsModalProps) =
                       </div>
                     );
                   })}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Comparison with previous month */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Comparación Mensual</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <p className="text-sm text-gray-600 mb-1">Mes Actual</p>
-                    <p className="text-3xl font-bold text-blue-600">{stats.completion_rate}%</p>
-                    <p className="text-xs text-gray-500">{stats.status_distribution.done} completadas</p>
-                  </div>
-                  <div className="text-center p-4 bg-gray-50 rounded-lg">
-                    <p className="text-sm text-gray-600 mb-1">Mes Anterior</p>
-                    <p className="text-3xl font-bold text-gray-600">{stats.prev_completion_rate}%</p>
-                    <p className="text-xs text-gray-500">Referencia</p>
-                  </div>
                 </div>
               </CardContent>
             </Card>

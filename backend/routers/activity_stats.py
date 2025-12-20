@@ -219,30 +219,84 @@ def get_general_activity_stats(
         )
     ).all()
 
+    # Fetch supervisors info for detailed breakdown
+    supervisors = session.exec(select(User).where(col(User.id).in_(supervisor_ids))).all()
+    supervisors_map = {s.id: s for s in supervisors}
+
     # Calculate stats for current month
     stats = {"pending": 0, "done": 0, "in_progress": 0, "missed": 0}
     total_todos = 0
     completed_todos = 0
     
+    # Per supervisor stats bucket
+    supervisor_buckets = {s_id: {"assigned": 0, "completed": 0, "completed_on_time": 0, "late": 0} for s_id in supervisor_ids}
+
     for activity in current_activities:
+        # Update General Stats
         if activity.scheduled_date and activity.scheduled_date < now - timedelta(hours=24):
             stats["missed"] += 1
-            continue
-
-        activity_total = len(activity.todos)
-        activity_done = sum(1 for todo in activity.todos if todo.is_done)
+            # Note: We continue here in the original logic, effectively skipping todo counting for "missed" activities in the general stats.
+            # However, for the detailed table, we still want to process this activity to count it as "late" or "completed".
+            # To preserve exact behavior of general stats while getting accurate table data, we need to be careful.
+            # The original logic uses 'continue'. We should probably calculate table stats BEFORE the continue, or separately.
+            pass 
         
-        total_todos += activity_total
-        completed_todos += activity_done
-
-        if activity_total == 0:
-            stats["pending"] += 1
-        elif activity_done == 0:
-            stats["pending"] += 1
-        elif activity_done == activity_total:
-            stats["done"] += 1
+        # We will separate the general stats logic loop from the supervisor stats loop to avoid regression or complex branching, 
+        # but since we are iterating the same list, we can do both if we are careful.
+        # Actually, let's keep the general stats logic EXACTLY as is to avoid regression, and add the supervisor stats logic in parallel.
+        
+        # --- General Stats Logic (Preserved) ---
+        is_missed_general = False
+        if activity.scheduled_date and activity.scheduled_date < now - timedelta(hours=24):
+            is_missed_general = True
+            
+        if is_missed_general:
+             stats["missed"] += 1
+             # Original logic continues here. We won't continue the loop, but we will skip the rest of general stats calculation for this item.
         else:
-            stats["in_progress"] += 1
+            activity_total = len(activity.todos)
+            activity_done = sum(1 for todo in activity.todos if todo.is_done)
+            
+            total_todos += activity_total
+            completed_todos += activity_done
+
+            if activity_total == 0:
+                stats["pending"] += 1
+            elif activity_done == 0:
+                stats["pending"] += 1
+            elif activity_done == activity_total:
+                stats["done"] += 1
+            else:
+                stats["in_progress"] += 1
+        
+        # --- Supervisor Detailed Stats Logic ---
+        s_id = activity.assigned_to_id
+        if s_id in supervisor_buckets:
+            bucket = supervisor_buckets[s_id]
+            bucket["assigned"] += 1
+            
+            is_done = False
+            if activity.todos:
+                done_todos = sum(1 for todo in activity.todos if todo.is_done)
+                if done_todos == len(activity.todos) and len(activity.todos) > 0:
+                    is_done = True
+            
+            if is_done:
+                bucket["completed"] += 1
+                # Check for on time / late
+                if activity.finished_date and activity.scheduled_date:
+                    if activity.finished_date <= activity.scheduled_date:
+                        bucket["completed_on_time"] += 1
+                    else:
+                        bucket["late"] += 1
+                else:
+                    # If finished_date is missing, we can't determine "On Time".
+                    # But if it's done, it's definitely completed.
+                    pass
+            else:
+                # Not done. Check if late (past scheduled date)
+                if activity.scheduled_date and activity.scheduled_date < now:
+                    bucket["late"] += 1
 
     # Calculate previous month stats for comparison
     prev_stats = {"done": 0, "total": len(prev_activities)}
@@ -251,6 +305,20 @@ def get_general_activity_stats(
         activity_done = sum(1 for todo in activity.todos if todo.is_done)
         if activity_total > 0 and activity_done == activity_total:
             prev_stats["done"] += 1
+
+    # Format supervisor stats for response
+    supervisors_stats = []
+    for s_id, bucket in supervisor_buckets.items():
+        supervisor = supervisors_map.get(s_id)
+        if supervisor:
+             supervisors_stats.append({
+                 "id": s_id,
+                 "name": supervisor.username,
+                 "assigned": bucket["assigned"],
+                 "completed": bucket["completed"],
+                 "completed_on_time": bucket["completed_on_time"],
+                 "late": bucket["late"]
+             })
 
     # Calculate completion rates
     current_total = len(current_activities)
@@ -270,4 +338,5 @@ def get_general_activity_stats(
         "avg_task_completion": round(avg_task_completion, 1),
         "total_tasks": total_todos,
         "completed_tasks": completed_todos,
+        "supervisors_stats": supervisors_stats
     }

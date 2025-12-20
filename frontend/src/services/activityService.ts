@@ -47,6 +47,14 @@ export const activityService = {
     avg_task_completion: number;
     total_tasks: number;
     completed_tasks: number;
+    supervisors_stats: {
+      id: number;
+      name: string;
+      assigned: number;
+      completed: number;
+      completed_on_time: number;
+      late: number;
+    }[];
   }> {
     const response = await authService.fetchWithAuth(`${API_URL}/activity/statuses_stats/general/detailed`);
 
