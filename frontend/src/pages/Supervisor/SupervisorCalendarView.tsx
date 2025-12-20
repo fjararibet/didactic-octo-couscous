@@ -11,6 +11,7 @@ import SupervisorActivityDetailModal from './SupervisorActivityDetailModal';
 import '../../styles/calendar.css';
 import { activityStatusColors } from '../../styles/colors';
 import { calculateActivityStatus } from '../../lib/utils';
+import { isActivityMissed } from '@/types/activity';
 
 const SupervisorCalendarView = () => {
   const { user } = useAuth();
@@ -64,7 +65,7 @@ const SupervisorCalendarView = () => {
       title: activity.name,
       start: activity.scheduled_date!,
       allDay: true,
-      classNames: [activityStatusColors[status]],
+      classNames: isActivityMissed(activity, status) ? ["bg-gray-400"] : [activityStatusColors[status]],
       extendedProps: { activity: { ...activity, status } },
     };
   });
