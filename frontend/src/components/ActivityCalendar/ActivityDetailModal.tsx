@@ -56,7 +56,7 @@ const ActivityDetailModal = ({
     const labels = {
       pending: "Pendiente",
       in_progress: "En Progreso",
-      done: "Completado",
+      done: "Completada",
     };
 
     return (

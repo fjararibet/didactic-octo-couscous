@@ -28,13 +28,24 @@ const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
 };
 
 
+const statusTranslations: { [key: string]: string } = {
+  pending: 'Pendiente',
+  in_progress: 'En Progreso',
+  done: 'Completada',
+  missed: 'Atrasada',
+};
+
+const statusReverseTranslations: { [key: string]: string } = Object.fromEntries(
+  Object.entries(statusTranslations).map(([key, value]) => [value, key])
+);
+
 export const StatusesPieChart = ({ userId }: { userId: number }) => {
   const [data, setData] = useState<{ name: string; value: number }[]>([]);
 
   useEffect(() => {
     activityService.getActivityStatusStats(userId).then((stats) => {
       const chartData = Object.entries(stats).map(([name, value]) => ({
-        name,
+        name: statusTranslations[name] || name,
         value,
       }));
       setData(chartData);
@@ -53,7 +64,7 @@ export const StatusesPieChart = ({ userId }: { userId: number }) => {
         dataKey="value"
       >
         {data.map((entry, index) => (
-          <Cell key={`cell-${index}`} fill={COLORS[entry.name as keyof typeof COLORS]} />
+          <Cell key={`cell-${index}`} fill={COLORS[statusReverseTranslations[entry.name] as keyof typeof COLORS]} />
         ))}
       </Pie>
       <Tooltip content={<CustomTooltip />} />
