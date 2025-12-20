@@ -2,7 +2,7 @@ from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select
 from database import get_session
-from models import Activity, User, SupervisorAssignment
+from models import Activity, User
 from schemas import (
     ActivityCreate,
     ActivityRead,
@@ -61,29 +61,9 @@ def read_activities_by_supervisor(
     session: Session = Depends(get_session),
     supervisor_id: int,
 ):
-    # Find all preventionists assigned to the supervisor
-    supervisor_assignments = session.exec(
-        select(SupervisorAssignment).where(
-            SupervisorAssignment.supervisor_id == supervisor_id
-        )
-    ).all()
-    preventionist_ids = [
-        assignment.preventionist_id for assignment in supervisor_assignments
-    ]
-
-    if not preventionist_ids:
-        return []
-
-    # Find all activities assigned to those preventionists
     activities = session.exec(
-        select(Activity).where(Activity.assigned_to_id.in_(preventionist_ids))
+        select(Activity).where(Activity.assigned_to_id == supervisor_id)
     ).all()
-    return [
-        activity
-        for activity in activities
-        if activity.assigned_to_id in preventionist_ids
-    ]
-
     return activities
 
 
