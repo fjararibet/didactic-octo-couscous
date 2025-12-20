@@ -8,8 +8,24 @@ import { StatusesPieChart } from './StatusesPieChart';
 import { activityService } from '@/services/activityService';
 import type { Activity } from '@/types/activity';
 import SupervisorActivityDetailModal from './SupervisorActivityDetailModal';
-import { calculateActivityStatus } from '@/lib/utils';
+import { calculateActivityStatus, cn } from '@/lib/utils';
 
+
+const getCardColorByStatus = (activity: Activity | null) => {
+  if (!activity) return 'hover:bg-gray-50';
+
+  const status = calculateActivityStatus(activity);
+  switch (status) {
+    case 'pending':
+      return 'bg-yellow-200 hover:bg-yellow-300';
+    case 'in_progress':
+      return 'bg-blue-200 hover:bg-blue-300';
+    case 'done':
+      return 'bg-green-400 hover:bg-green-500';
+    default:
+      return 'hover:bg-gray-50';
+  }
+};
 
 const SupervisorDashboard = () => {
   const navigate = useNavigate();
@@ -73,7 +89,10 @@ const SupervisorDashboard = () => {
           <CardContent className="grid grid-cols-2 grid-rows-2 gap-6">
             <div className="flex flex-col space-y-4">
               <Card
-                className={`w-full cursor-pointer col-start-1 col-end-2 ${nextActivity && calculateActivityStatus(nextActivity) === 'done' ? 'bg-green-400 hover:bg-green-500' : 'hover:bg-gray-50'}`}
+                className={cn(
+                  "w-full cursor-pointer col-start-1 col-end-2 transition-colors",
+                  getCardColorByStatus(nextActivity)
+                )}
                 onClick={() => nextActivity && handleOpenModal(nextActivity)}
               >
                 <CardHeader>
@@ -87,11 +106,15 @@ const SupervisorDashboard = () => {
                       <p className="text-lg font-semibold">{nextActivity.name}</p>
                       <p className="text-sm text-gray-600">Fecha: {new Date(nextActivity.scheduled_date!).toLocaleDateString()}</p>
                       <p className="text-sm text-gray-600">Asignado por: {nextActivity.created_by.username}</p>
-                      {calculateActivityStatus(nextActivity) === 'done' && (
-                        <Button onClick={fetchNextActivity} className="mt-4">
-                          Siguiente Tarea
-                        </Button>
-                      )}
+                      <Button
+                        onClick={fetchNextActivity}
+                        className={cn(
+                          "absolute bottom-4 right-4",
+                          calculateActivityStatus(nextActivity) === 'done' ? "visible" : "invisible opacity-0 pointer-events-none"
+                        )}
+                      >
+                        Siguiente Tarea
+                      </Button>
                     </div>
                   ) : (
                     <p>No hay actividades programadas próximamente.</p>
