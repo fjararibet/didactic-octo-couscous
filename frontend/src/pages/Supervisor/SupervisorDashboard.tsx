@@ -63,9 +63,6 @@ const SupervisorDashboard = () => {
 
   const handleCloseModal = () => {
     setSelectedActivity(null);
-    if (nextActivity && calculateActivityStatus(nextActivity) === 'done') {
-      fetchNextActivity();
-    }
   };
 
   if (!user) {
@@ -107,13 +104,16 @@ const SupervisorDashboard = () => {
                       <p className="text-sm text-gray-600">Fecha: {new Date(nextActivity.scheduled_date!).toLocaleDateString()}</p>
                       <p className="text-sm text-gray-600">Asignado por: {nextActivity.created_by.username}</p>
                       <Button
-                        onClick={fetchNextActivity}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          fetchNextActivity();
+                        }}
                         className={cn(
-                          "absolute bottom-4 right-4",
+                          "absolute bottom-2 right-2",
                           calculateActivityStatus(nextActivity) === 'done' ? "visible" : "invisible opacity-0 pointer-events-none"
                         )}
                       >
-                        Siguiente Tarea
+                        Siguiente Actividad
                       </Button>
                     </div>
                   ) : (

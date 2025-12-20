@@ -344,7 +344,7 @@ def populate():
     for prev in preventionists:
         # Each preventionist has between 5 and 20 supervisors
         # num_supervisors = random.randint(5, 20)
-        num_supervisors = 10
+        num_supervisors = 5
 
         for j in range(num_supervisors):
             nombre_completo = generar_nombre_completo()
@@ -369,7 +369,7 @@ def populate():
 
             # Create Activities for this Supervisor
             # Randomly assign 2 to 5 activities per supervisor
-            num_activities = random.randint(2, 5)
+            num_activities = random.randint(20, 30)
 
             for _ in range(num_activities):
                 # Choose a random activity template

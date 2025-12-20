@@ -231,7 +231,10 @@ export const activityService = {
     now.setHours(0, 0, 0, 0);
 
     const upcomingActivities = activities
-      .filter(activity => activity.scheduled_date && new Date(activity.scheduled_date) >= now)
+      .filter(activity => {
+        const isDone = activity.todos.length > 0 && activity.todos.every(t => t.is_done);
+        return !isDone && activity.scheduled_date && new Date(activity.scheduled_date) >= now;
+      })
       .sort((a, b) => new Date(a.scheduled_date!).getTime() - new Date(b.scheduled_date!).getTime());
 
     return upcomingActivities.length > 0 ? upcomingActivities[0] : null;
