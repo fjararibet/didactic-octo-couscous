@@ -317,7 +317,7 @@ def populate():
     for i in range(1):
         nombre_completo = generar_nombre_completo()
         # uid = str(uuid.uuid4())[:8]
-        email = f"prev_{i}@example.com"
+        email = f"prevencionista_{i}@example.com"
 
         user = User(
             username=nombre_completo,
@@ -350,7 +350,7 @@ def populate():
         for j in range(num_supervisors):
             nombre_completo = generar_nombre_completo()
             # uid = str(uuid.uuid4())[:8]
-            email = f"sup_{j}@example.com"
+            email = f"supervisor_{j}@example.com"
 
             supervisor = User(
                 username=nombre_completo,
