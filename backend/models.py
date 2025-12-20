@@ -67,3 +67,19 @@ class TodoItem(SQLModel, table=True):
 
     activity_id: Optional[int] = Field(default=None, foreign_key="activity.id")
     activity: Optional[Activity] = Relationship(back_populates="todos")
+
+
+class ActivityTemplate(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str
+    description: Optional[str] = None
+
+    template_todos: List["TemplateTodoItem"] = Relationship(back_populates="template")
+
+
+class TemplateTodoItem(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    description: str
+
+    template_id: Optional[int] = Field(default=None, foreign_key="activitytemplate.id")
+    template: Optional[ActivityTemplate] = Relationship(back_populates="template_todos")

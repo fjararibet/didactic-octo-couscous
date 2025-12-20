@@ -71,6 +71,42 @@ class TodoItemRead(TodoItemBase):
     id: int
 
 
+class ActivityTemplateBase(SQLModel):
+    name: str
+    description: Optional[str] = None
+
+
+class ActivityTemplateCreate(ActivityTemplateBase):
+    pass
+
+
+class ActivityTemplateUpdate(SQLModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+
+
+class ActivityTemplateRead(ActivityTemplateBase):
+    id: int
+
+
+class TemplateTodoItemBase(SQLModel):
+    description: str
+    template_id: int
+
+
+class TemplateTodoItemCreate(TemplateTodoItemBase):
+    pass
+
+
+class TemplateTodoItemUpdate(SQLModel):
+    description: Optional[str] = None
+    template_id: Optional[int] = None
+
+
+class TemplateTodoItemRead(TemplateTodoItemBase):
+    id: int
+
+
 class Token(SQLModel):
     access_token: str
     token_type: str
