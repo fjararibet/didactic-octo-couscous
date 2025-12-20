@@ -88,7 +88,7 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
       title: `${activity.name} ${
         activity.todos.length > 0
           ? `(${Math.round(
-              (activity.todos.filter(t => t.status === 'yes' || t.status === 'not_apply').length / activity.todos.length) * 100
+              (activity.todos.filter(t => t.status !== 'pending').length / activity.todos.length) * 100
             )}%)`
           : ''
       }`,

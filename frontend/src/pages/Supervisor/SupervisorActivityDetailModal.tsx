@@ -87,7 +87,7 @@ const SupervisorActivityDetailModal = ({
     }).format(date);
   };
 
-  const completedTodos = todos.filter(t => t.status === 'yes' || t.status === 'not_apply').length;
+  const completedTodos = todos.filter(t => t.status !== 'pending').length;
   const totalTodos = todos.length;
   const progressPercentage =
     totalTodos > 0 ? (completedTodos / totalTodos) * 100 : 0;

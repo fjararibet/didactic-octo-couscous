@@ -218,7 +218,7 @@ export const activityService = {
 
     const upcomingActivities = activities
       .filter(activity => {
-        const isDone = activity.todos.length > 0 && activity.todos.every(t => t.status === 'yes' || t.status === 'not_apply');
+        const isDone = activity.todos.length > 0 && activity.todos.every(t => t.status !== 'pending');
         return !isDone && activity.scheduled_date && new Date(activity.scheduled_date) >= now;
       })
       .sort((a, b) => new Date(a.scheduled_date!).getTime() - new Date(b.scheduled_date!).getTime());

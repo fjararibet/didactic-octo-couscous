@@ -44,7 +44,7 @@ export const getActivityStatus = (activity: Activity): ActivityStatus => {
     return 'pending';
   }
 
-  const doneCount = activity.todos.filter((todo) => todo.status === 'yes' || todo.status === 'not_apply').length;
+  const doneCount = activity.todos.filter((todo) => todo.status !== 'pending').length;
 
   if (doneCount === 0) {
     return 'pending';

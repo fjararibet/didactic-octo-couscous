@@ -76,7 +76,7 @@ const ActivityDetailModal = ({
     }).format(date);
   };
 
-  const completedTodos = activity.todos.filter((t) => t.status === 'yes' || t.status === 'not_apply').length;
+  const completedTodos = activity.todos.filter((t) => t.status !== 'pending').length;
   const totalTodos = activity.todos.length;
   const progressPercentage =
     totalTodos > 0 ? (completedTodos / totalTodos) * 100 : 0;
