@@ -89,9 +89,13 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
 
   const events = activities.map(activity => ({
     id: String(activity.id),
-    title: `${activity.name} (${activity.todos.filter(t => t.is_done).length}/${
-      activity.todos.length
-    }) - ${activity.assigned_to.username}`,
+    title: `${activity.name} ${
+      activity.todos.length > 0
+        ? `(${Math.round(
+            (activity.todos.filter(t => t.is_done).length / activity.todos.length) * 100
+          )}%)`
+        : ''
+    }`,
     start: activity.scheduled_date!,
     allDay: true,
     backgroundColor: getStatusColor(activity.status),
