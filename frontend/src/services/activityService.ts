@@ -47,9 +47,9 @@ export const activityService = {
       body: JSON.stringify({
         name: data.name,
         status: 'pending',
-        scheduled_date: data.scheduled_date || new Date().toISOString(),
+        scheduled_date: data.scheduled_date ?? null,
         finished_date: null,
-        assigned_to_id: data.assigned_to_id || null,
+        assigned_to_id: data.assigned_to_id ?? null,
       }),
     });
 
