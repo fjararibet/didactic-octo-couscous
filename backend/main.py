@@ -3,7 +3,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel
 from database import engine
-from routers import users, activities, todos, auth, activity_templates, todos_template
+from routers import (
+    users,
+    activities,
+    todos,
+    auth,
+    activity_templates,
+    todos_template,
+    activity_stats,
+)
+
 
 
 @asynccontextmanager
@@ -34,6 +43,8 @@ app.include_router(activities.router)
 app.include_router(todos.router)
 app.include_router(activity_templates.router)
 app.include_router(todos_template.router)
+app.include_router(activity_stats.router)
+
 
 
 @app.get("/")
