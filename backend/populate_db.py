@@ -377,11 +377,16 @@ def populate():
                 # Choose a random activity template
                 template = random.choice(activity_templates)
 
-                # Generate a random date in December 2025
-                year = 2025
-                month = 12
-                day = random.randint(1, 19)  # December has 31 days, but we want until yesterday (19th)
-                scheduled_date = datetime(year, month, day)
+                # Generate a random date in December 2025, ensuring it's not a weekend
+                while True:
+                    # December has 31 days, but we want until yesterday (19th)
+                    day = random.randint(1, 19)
+                    year = 2025
+                    month = 12
+                    scheduled_date = datetime(year, month, day)
+                    # Monday is 0 and Sunday is 6
+                    if scheduled_date.weekday() < 5:
+                        break
 
                 # Decide if activity is completed (in_review) or not
                 is_completed = random.choice([True, False])
