@@ -79,21 +79,21 @@ const SupervisorDashboard = () => {
   }
 
   return (
-    <div className="h-screen overflow-hidden bg-gray-100 p-4">
+    <div className="h-screen overflow-hidden bg-gray-100 p-2">
       <div className="mx-auto h-full">
-        <div className="flex justify-between items-center mb-2">
+        <div className="flex justify-between items-center mb-1">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">Panel de Supervisor</h1>
-            <p className="text-sm text-gray-500 mt-1">Sesión: {user?.email}</p>
+            <h1 className="text-xl font-bold text-gray-800">Panel de Supervisor</h1>
+            <p className="text-xs text-gray-500 mt-0.5">Sesión: {user?.email}</p>
           </div>
-          <Button variant="outline" onClick={handleLogout}>
+          <Button variant="outline" onClick={handleLogout} className="text-sm py-1 px-3">
             Cerrar Sesión
           </Button>
         </div>
 
         <Card className="w-full">
-          <CardContent className="grid grid-cols-2 grid-rows-2 gap-6">
-            <div className="flex flex-col space-y-4">
+          <CardContent className="grid grid-cols-[40%_60%] gap-3 py-2">
+            <div className="flex flex-col space-y-2">
               <Card
                 className={cn(
                   "w-full cursor-pointer col-start-1 col-end-2 transition-colors",
@@ -101,37 +101,37 @@ const SupervisorDashboard = () => {
                 )}
                 onClick={() => nextActivity && handleOpenModal(nextActivity)}
               >
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold text-blue-800">Próxima Actividad Programada</CardTitle>
+                <CardHeader className="pb-1 pt-2 px-3">
+                  <CardTitle className="text-sm font-bold text-blue-800">Próxima Actividad Programada</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pb-2 pt-0 px-3 relative min-h-20">
                   {loadingNextActivity ? (
-                    <p>Cargando próxima actividad...</p>
+                    <p className="text-sm">Cargando próxima actividad...</p>
                   ) : nextActivity ? (
-                    <div>
-                      <p className="text-lg font-semibold">{nextActivity.name}</p>
-                      <p className="text-sm text-gray-600">Fecha: {new Date(nextActivity.scheduled_date!).toLocaleDateString()}</p>
-                      <p className="text-sm text-gray-600">Asignado por: {nextActivity.created_by.username}</p>
+                    <div className="relative">
+                      <p className="text-sm font-semibold mb-0.5">{nextActivity.name}</p>
+                      <p className="text-xs text-gray-600 leading-tight">Fecha: {new Date(nextActivity.scheduled_date!).toLocaleDateString()}</p>
+                      <p className="text-xs text-gray-600 leading-tight mb-6">Asignado por: {nextActivity.created_by.username}</p>
                       <Button
                         onClick={(e) => {
                           e.stopPropagation();
                           fetchNextActivity();
                         }}
                         className={cn(
-                          "absolute bottom-2 right-2",
+                          "absolute bottom-0 right-0 text-xs py-1 px-2",
                           calculateActivityStatus(nextActivity) === 'done' && isSameDay(nextActivity.scheduled_date) ? "visible" : "invisible opacity-0 pointer-events-none"
                         )}
                       >
                         Siguiente Actividad
                       </Button>
                       {calculateActivityStatus(nextActivity) !== 'done' && !isSameDay(nextActivity.scheduled_date) && (
-                        <p className="text-sm text-gray-500 absolute bottom-2 right-2">
-                          No hay más actividades para hoy. Próxima: {new Date(nextActivity.scheduled_date!).toLocaleDateString()}
+                        <p className="text-xs text-gray-500 absolute bottom-0 right-0">
+                          No hay más actividades para hoy
                         </p>
                       )}
                     </div>
                   ) : (
-                    <p>No hay actividades programadas próximamente.</p>
+                    <p className="text-sm">No hay actividades programadas próximamente.</p>
                   )}
                 </CardContent>
               </Card>
