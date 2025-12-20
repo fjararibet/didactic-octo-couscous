@@ -18,8 +18,6 @@ def assign_supervisor_to_preventionist(
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user)
 ):
-    if current_user.role != Role.admin:
-        raise HTTPException(status_code=403, detail="Not authorized")
 
     supervisor = session.get(User, assignment.supervisor_id)
     preventionist = session.get(User, assignment.preventionist_id)
