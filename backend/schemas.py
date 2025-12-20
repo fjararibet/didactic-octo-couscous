@@ -69,6 +69,7 @@ class TodoItemRead(TodoItemBase):
 class Token(SQLModel):
     access_token: str
     token_type: str
+    role: str
 
 
 class TokenData(SQLModel):
