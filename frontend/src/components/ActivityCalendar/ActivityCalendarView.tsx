@@ -49,7 +49,7 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
   const loadActivities = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await activityService.getActivitiesByCreator(userId);
+      const data = await activityService.getActivitiesBySupervisor(userId);
       setActivities(data);
     } catch (error) {
       console.error('Error loading activities:', error);
@@ -78,8 +78,8 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
 
   // Convert scheduled activities to calendar events
   const events = scheduledActivities.map(activity => {
-    const completedTodos = activity.todos.filter(t => t.is_done).length;
-    const totalTodos = activity.todos.length;
+    const completedTodos = (activity.todos || []).filter(t => t.is_done).length;
+    const totalTodos = (activity.todos || []).length;
     let title = `${activity.name} (${completedTodos}/${totalTodos})`;
     if (activity.assigned_to) {
       title += ` - ${activity.assigned_to.username}`;
@@ -121,7 +121,7 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
 
   // Handle activity updated (refresh without closing modal)
   const handleActivityUpdated = async () => {
-    const updatedActivities = await activityService.getActivitiesByCreator(userId);
+    const updatedActivities = await activityService.getActivitiesBySupervisor(userId);
     setActivities(updatedActivities);
 
     // Update the selected activity with fresh data
@@ -182,8 +182,8 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
             <>
               <div ref={draggableRef} className="space-y-2">
                 {unscheduledActivities.map(activity => {
-                  const completedTodos = activity.todos.filter(t => t.is_done).length;
-                  const totalTodos = activity.todos.length;
+                  const completedTodos = (activity.todos || []).filter(t => t.is_done).length;
+                  const totalTodos = (activity.todos || []).length;
 
                   return (
                     <div
