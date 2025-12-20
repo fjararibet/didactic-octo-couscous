@@ -29,7 +29,7 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
   const [loading, setLoading] = useState(true);
   const [supervisorName, setSupervisorName] = useState<string>(''); // Add supervisorName state
   const draggableRef = useRef<HTMLDivElement>(null);
-  const draggableInstanceRef = useRef<Draggable | null>(null);
+  const draggableInstanceRef = useRef<Draggable | null>(null); // eslint-disable-line @typescript-eslint/no-unused-vars
 
   // Get status color
   const getStatusColor = (status: Activity['status']) => {
@@ -73,43 +73,8 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
     loadSupervisorName();
   }, [loadActivities, loadSupervisorName]);
 
-  // Initialize draggable for unscheduled activities
-  useEffect(() => {
-    if (draggableRef.current && !draggableInstanceRef.current) {
-      draggableInstanceRef.current = new Draggable(draggableRef.current, {
-
-        itemSelector: '.fc-event',
-        longPressDelay: 0,
-        eventData: function(eventEl) {
-          const activityId = eventEl.getAttribute('data-activity-id');
-          const activity = activities.find(a => a.id === parseInt(activityId || '0'));
-
-          if (activity) {
-            const completedTodos = activity.todos.filter(t => t.is_done).length;
-            const totalTodos = activity.todos.length;
-
-            return {
-              title: `${activity.name} (${completedTodos}/${totalTodos})`,
-              allDay: true,
-              backgroundColor: getStatusColor(activity.status),
-              borderColor: getStatusColor(activity.status),
-              extendedProps: {
-                activityId: activity.id,
-              }
-            };
-          }
-          return null;
-        }
-      });
-    }
-
-    return () => {
-      if (draggableInstanceRef.current) {
-        draggableInstanceRef.current.destroy();
-        draggableInstanceRef.current = null;
-      }
-    };
-  }, [activities]);
+  const scheduledActivities = activities.filter(activity => activity.scheduled_date !== null);
+  const unscheduledActivities = activities.filter(activity => activity.scheduled_date === null);
 
   // Convert scheduled activities to calendar events
   const events = scheduledActivities.map(activity => {

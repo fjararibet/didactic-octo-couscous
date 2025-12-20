@@ -12,7 +12,7 @@ class UserService {
 
     return response.json();
   }
-  async getUserById(userId: Number): Promise<UserInfo> {
+  async getUserById(userId: number): Promise<UserInfo> {
     const response = await authService.fetchWithAuth(`${API_URL}/users/${userId}`);
     if (!response.ok) {
       throw new Error(`Failed to fetch user ${userId}`);
