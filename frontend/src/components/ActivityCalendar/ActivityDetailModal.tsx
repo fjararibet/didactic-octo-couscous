@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Activity } from "@/types/activity";
+import { isActivityMissed } from "@/types/activity";
 import { activityService } from "@/services/activityService";
 import {
   Dialog,
@@ -31,6 +32,7 @@ const ActivityDetailModal = ({
   const [newTodoDescription, setNewTodoDescription] = useState("");
   const [isAddingTodo, setIsAddingTodo] = useState(false);
   const currentStatus = calculateActivityStatus(activity);
+  const missed = isActivityMissed(activity);
 
   const handleAddTodo = async () => {
     if (!newTodoDescription.trim()) return;
@@ -95,6 +97,11 @@ const ActivityDetailModal = ({
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-gray-600">Estado:</span>
               {getStatusBadge(currentStatus)}
+              {missed && (
+                <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                  Atrasada
+                </span>
+              )}
             </div>
 
             {activity.scheduled_date && (

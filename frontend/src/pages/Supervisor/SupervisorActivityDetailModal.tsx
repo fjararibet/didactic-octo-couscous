@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Activity, TodoItem } from '@/types/activity';
+import { isActivityMissed } from '@/types/activity';
 import { activityService } from '@/services/activityService';
 import {
   Dialog,
@@ -28,9 +29,13 @@ const SupervisorActivityDetailModal = ({
   onActivityUpdate,
 }: SupervisorActivityDetailModalProps) => {
   const [localActivity, setLocalActivity] = useState(activity);
-  const [isDirty, setIsDirty] = useState(false);
   const todos = localActivity.todos || [];
   const currentStatus = calculateActivityStatus(localActivity);
+  const missed = isActivityMissed(localActivity);
+
+  useEffect(() => {
+    setLocalActivity(activity);
+  }, [activity]);
 
   const handleToggleTodo = async (todoId: number) => {
     try {
@@ -39,8 +44,9 @@ const SupervisorActivityDetailModal = ({
         const updatedTodos = todos.map(t =>
           t.id === todoId ? { ...t, is_done: updatedTodo.is_done } : t
         );
-        setLocalActivity({ ...localActivity, todos: updatedTodos });
-        setIsDirty(true);
+        const newLocalActivity = { ...localActivity, todos: updatedTodos };
+        setLocalActivity(newLocalActivity);
+        onActivityUpdate(newLocalActivity);
       }
     } catch (error) {
       console.error('Error updating todo:', error);
@@ -48,9 +54,6 @@ const SupervisorActivityDetailModal = ({
   };
 
   const handleClose = () => {
-    if (isDirty) {
-      onActivityUpdate(localActivity);
-    }
     onClose();
   };
 
@@ -100,6 +103,11 @@ const SupervisorActivityDetailModal = ({
                 Estado:
               </span>
               {getStatusBadge(currentStatus)}
+              {missed && (
+                <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                  Atrasada
+                </span>
+              )}
             </div>
 
             {localActivity.scheduled_date && (
