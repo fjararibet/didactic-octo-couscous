@@ -15,7 +15,6 @@ interface NewActivityModalProps {
   isOpen: boolean;
   onClose: () => void;
   onActivityCreated: () => void;
-  userId: number;
   initialDate?: string | null;
 }
 
@@ -23,7 +22,6 @@ const NewActivityModal = ({
   isOpen,
   onClose,
   onActivityCreated,
-  userId,
   initialDate,
 }: NewActivityModalProps) => {
   const [formData, setFormData] = useState({
@@ -64,13 +62,10 @@ const NewActivityModal = ({
         scheduledDateTime = `${formData.scheduled_date}T12:00:00.000Z`;
       }
 
-      await activityService.createActivity(
-        {
-          name: formData.name,
-          scheduled_date: scheduledDateTime,
-        },
-        userId
-      );
+      await activityService.createActivity({
+        name: formData.name,
+        scheduled_date: scheduledDateTime,
+      });
 
       // Reset form
       setFormData({

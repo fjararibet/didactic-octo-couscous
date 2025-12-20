@@ -342,7 +342,6 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
           setNewActivityDate(null);
         }}
         onActivityCreated={handleActivityCreated}
-        userId={userId}
         initialDate={newActivityDate}
       />
     </div>
