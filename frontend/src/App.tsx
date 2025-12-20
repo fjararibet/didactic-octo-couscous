@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import LoginPage from './pages/Login/LoginPage'
 import SupervisorDashboard from './pages/Supervisor/SupervisorDashboard'
 import PreventionistDashboard from './pages/Preventionist/PreventionistDashboard'
+import SupervisorActivitiesPage from './pages/Preventionist/SupervisorActivitiesPage'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -25,6 +26,15 @@ function App() {
         element={
           <ProtectedRoute allowedRole="preventionist">
             <PreventionistDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/preventionist/supervisor/:supervisorId"
+        element={
+          <ProtectedRoute allowedRole="preventionist">
+            <SupervisorActivitiesPage />
           </ProtectedRoute>
         }
       />

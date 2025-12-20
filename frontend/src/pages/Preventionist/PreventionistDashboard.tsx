@@ -33,9 +33,7 @@ const PreventionistDashboard = () => {
   };
 
   const handleSelectSupervisor = (supervisorId: number) => {
-    // For now we just log it, we'll implement navigation later
-    console.log('Selected supervisor:', supervisorId);
-    // navigate(`/preventionist/supervisor/${supervisorId}`);
+    navigate(`/preventionist/supervisor/${supervisorId}`);
   };
 
   return (
