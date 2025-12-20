@@ -2,18 +2,16 @@ from typing import cast
 from fastapi import APIRouter, Depends
 from sqlmodel import Session, select
 from database import get_session
-from models import Activity, User
+from models import Activity
 from datetime import datetime, timedelta
 
-from routers.auth import get_current_user
-
-router = APIRouter(prefix="/activity/stats", tags=["activity-stats"])
+router = APIRouter(prefix="/activity/statuses_stats", tags=["activity-stats"])
 
 
-@router.get("/")
+@router.get("/{user_id}")
 def get_activity_stats(
+    user_id: int,
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user),
 ):
     now = datetime.now()
     start_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
@@ -23,7 +21,7 @@ def get_activity_stats(
 
     activities = session.exec(
         select(Activity).where(
-            Activity.assigned_to_id == current_user.id,
+            Activity.assigned_to_id == user_id,
             Activity.scheduled_date is not None,  # Ensure scheduled_date is not None
             cast(datetime, Activity.scheduled_date) >= start_of_month,
             cast(datetime, Activity.scheduled_date) <= end_of_month,
