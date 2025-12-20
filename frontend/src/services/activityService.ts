@@ -53,7 +53,8 @@ export const activityService = {
       assigned: number;
       completed: number;
       completed_on_time: number;
-      late: number;
+      completed_late: number;
+      overdue: number;
     }[];
   }> {
     const response = await authService.fetchWithAuth(`${API_URL}/activity/statuses_stats/general/detailed`);

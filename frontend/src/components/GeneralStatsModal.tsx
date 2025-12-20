@@ -40,7 +40,8 @@ interface ActivityStats {
     assigned: number;
     completed: number;
     completed_on_time: number;
-    late: number;
+    completed_late: number;
+    overdue: number;
   }[];
 }
 
@@ -191,12 +192,12 @@ export const GeneralStatsModal = ({ isOpen, onClose }: GeneralStatsModalProps) =
                   <table className="w-full text-sm text-left text-gray-500">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                       <tr>
-                        <th scope="col" className="px-6 py-3">Supervisor</th>
-                        <th scope="col" className="px-6 py-3 text-center">Asignadas</th>
-                        <th scope="col" className="px-6 py-3 text-center">Completadas</th>
-                        <th scope="col" className="px-6 py-3 text-center text-green-600">A Tiempo</th>
-                        <th scope="col" className="px-6 py-3 text-center text-red-600">Atrasadas/Tardías</th>
-                        <th scope="col" className="px-6 py-3 text-center">Cumplimiento</th>
+                        <th scope="col" className="px-2 py-3">Supervisor</th>
+                        <th scope="col" className="px-2 py-3 text-center">Asignadas</th>
+                        <th scope="col" className="px-2 py-3 text-center text-green-600">Completadas a Tiempo</th>
+                        <th scope="col" className="px-2 py-3 text-center text-orange-600">Completadas Tarde</th>
+                        <th scope="col" className="px-2 py-3 text-center text-red-600">Pendientes Tarde</th>
+                        <th scope="col" className="px-2 py-3 text-center">Cumplimiento</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -206,7 +207,7 @@ export const GeneralStatsModal = ({ isOpen, onClose }: GeneralStatsModalProps) =
                           : '0';
                         return (
                           <tr key={supervisor.id} className="bg-white border-b hover:bg-gray-50">
-                            <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                            <td className="px-2 py-4 font-medium text-gray-900 whitespace-nowrap">
                               <div 
                                 className={`w-8 h-8 rounded-full ${getAvatarColor(supervisor.id)} flex items-center justify-center shadow-sm cursor-help`}
                                 title={supervisor.name}
@@ -216,12 +217,12 @@ export const GeneralStatsModal = ({ isOpen, onClose }: GeneralStatsModalProps) =
                                 </span>
                               </div>
                             </td>
-                            <td className="px-6 py-4 text-center">{supervisor.assigned}</td>
-                            <td className="px-6 py-4 text-center">{supervisor.completed}</td>
-                            <td className="px-6 py-4 text-center font-medium text-green-600">{supervisor.completed_on_time}</td>
-                            <td className="px-6 py-4 text-center font-medium text-red-600">{supervisor.late}</td>
-                            <td className="px-6 py-4 text-center">
-                              <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            <td className="px-2 py-4 text-center">{supervisor.assigned}</td>
+                            <td className="px-2 py-4 text-center font-medium text-green-600">{supervisor.completed_on_time}</td>
+                            <td className="px-2 py-4 text-center font-medium text-orange-600">{supervisor.completed_late}</td>
+                            <td className="px-2 py-4 text-center font-medium text-red-600">{supervisor.overdue}</td>
+                            <td className="px-2 py-4 text-center">
+                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                                 parseInt(compliance) >= 80 ? 'bg-green-100 text-green-800' :
                                 parseInt(compliance) >= 50 ? 'bg-yellow-100 text-yellow-800' :
                                 'bg-red-100 text-red-800'
