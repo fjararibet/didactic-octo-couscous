@@ -1,188 +1,156 @@
 import type { Activity, CreateActivityDto, CreateTodoDto, TodoItem, UpdateActivityDto } from '@/types/activity';
+import { authService } from './authService';
 
-// Mock data storage
-let activities: Activity[] = [
-  {
-    id: 1,
-    name: 'Inspección de Extintores',
-    status: 'pending',
-    scheduled_date: '2025-12-20T10:00:00',
-    finished_date: null,
-    created_by_id: 1,
-    assigned_to_id: 2,
-    todos: [
-      { id: 1, description: 'Revisar presión de extintores', is_done: false, activity_id: 1 },
-      { id: 2, description: 'Verificar sellos de seguridad', is_done: false, activity_id: 1 },
-      { id: 3, description: 'Documentar hallazgos', is_done: false, activity_id: 1 },
-    ],
-  },
-  {
-    id: 2,
-    name: 'Capacitación de Seguridad',
-    status: 'in_progress',
-    scheduled_date: '2025-12-22T14:00:00',
-    finished_date: null,
-    created_by_id: 1,
-    assigned_to_id: 2,
-    todos: [
-      { id: 4, description: 'Preparar material didáctico', is_done: true, activity_id: 2 },
-      { id: 5, description: 'Reservar sala de capacitación', is_done: false, activity_id: 2 },
-    ],
-  },
-  {
-    id: 3,
-    name: 'Auditoría de Salidas de Emergencia',
-    status: 'done',
-    scheduled_date: '2025-12-18T09:00:00',
-    finished_date: '2025-12-18T11:30:00',
-    created_by_id: 1,
-    assigned_to_id: 2,
-    todos: [
-      { id: 6, description: 'Verificar señalización', is_done: true, activity_id: 3 },
-      { id: 7, description: 'Probar iluminación de emergencia', is_done: true, activity_id: 3 },
-      { id: 8, description: 'Generar reporte', is_done: true, activity_id: 3 },
-    ],
-  },
-  {
-    id: 4,
-    name: 'Revisión de Equipos de Protección',
-    status: 'pending',
-    scheduled_date: '2025-12-25T11:00:00',
-    finished_date: null,
-    created_by_id: 1,
-    assigned_to_id: 2,
-    todos: [
-      { id: 9, description: 'Inventario de cascos', is_done: false, activity_id: 4 },
-      { id: 10, description: 'Revisar guantes de seguridad', is_done: false, activity_id: 4 },
-    ],
-  },
-  {
-    id: 5,
-    name: 'Simulacro de Evacuación',
-    status: 'pending',
-    scheduled_date: null,
-    finished_date: null,
-    created_by_id: 1,
-    assigned_to_id: null,
-    todos: [
-      { id: 11, description: 'Coordinar con brigada', is_done: false, activity_id: 5 },
-      { id: 12, description: 'Preparar cronómetros', is_done: false, activity_id: 5 },
-    ],
-  },
-  {
-    id: 6,
-    name: 'Mantenimiento de Botiquines',
-    status: 'pending',
-    scheduled_date: null,
-    finished_date: null,
-    created_by_id: 1,
-    assigned_to_id: null,
-    todos: [
-      { id: 13, description: 'Revisar fecha de medicamentos', is_done: false, activity_id: 6 },
-      { id: 14, description: 'Reponer materiales faltantes', is_done: false, activity_id: 6 },
-    ],
-  },
-];
-
-let nextActivityId = 7;
-let nextTodoId = 15;
-
-// Simulate network delay
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export const activityService = {
-  // Get all activities for a user (preventionist shows created activities)
+  // Get all activities for a user (by creator)
   async getActivitiesByCreator(userId: number): Promise<Activity[]> {
-    await delay(300);
-    return activities.filter(activity => activity.created_by_id === userId);
+    const response = await authService.fetchWithAuth(`${API_URL}/activities/by-creator/${userId}`);
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch activities');
+    }
+
+    return await response.json();
   },
 
   // Get a single activity by ID
   async getActivityById(id: number): Promise<Activity | null> {
-    await delay(200);
-    return activities.find(activity => activity.id === id) || null;
+    const response = await authService.fetchWithAuth(`${API_URL}/activities/${id}`);
+
+    if (response.status === 404) {
+      return null;
+    }
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch activity');
+    }
+
+    const activity = await response.json();
+
+    // Fetch todos for this activity
+    const todosResponse = await authService.fetchWithAuth(`${API_URL}/todos?activity_id=${id}`);
+    if (todosResponse.ok) {
+      activity.todos = await todosResponse.json();
+    } else {
+      activity.todos = [];
+    }
+
+    return activity;
   },
 
   // Create a new activity
-  async createActivity(data: CreateActivityDto, creatorId: number): Promise<Activity> {
-    await delay(400);
-    const newActivity: Activity = {
-      id: nextActivityId++,
-      name: data.name,
-      status: 'pending',
-      scheduled_date: data.scheduled_date ?? null,
-      finished_date: null,
-      created_by_id: creatorId,
-      assigned_to_id: data.assigned_to_id || null,
-      todos: [],
-    };
-    activities.push(newActivity);
+  async createActivity(data: CreateActivityDto): Promise<Activity> {
+    const response = await authService.fetchWithAuth(`${API_URL}/activities/`, {
+      method: 'POST',
+      body: JSON.stringify({
+        name: data.name,
+        status: 'pending',
+        scheduled_date: data.scheduled_date || new Date().toISOString(),
+        finished_date: null,
+        assigned_to_id: data.assigned_to_id || null,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create activity');
+    }
+
+    const newActivity = await response.json();
+    newActivity.todos = [];
+
     return newActivity;
   },
 
   // Update an activity
   async updateActivity(id: number, data: UpdateActivityDto): Promise<Activity | null> {
-    await delay(300);
-    const activity = activities.find(a => a.id === id);
-    if (!activity) {
+    const updatePayload: Record<string, any> = {};
+
+    if (data.name !== undefined) updatePayload.name = data.name;
+    if (data.status !== undefined) {
+      updatePayload.status = data.status;
+      if (data.status === 'done') {
+        updatePayload.finished_date = new Date().toISOString();
+      }
+    }
+    if (data.scheduled_date !== undefined) {
+      updatePayload.scheduled_date = data.scheduled_date;
+    }
+    if (data.assigned_to_id !== undefined) {
+      updatePayload.assigned_to_id = data.assigned_to_id;
+    }
+
+    const response = await authService.fetchWithAuth(`${API_URL}/activities/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updatePayload),
+    });
+
+    if (response.status === 404) {
       return null;
     }
 
-    if (data.name !== undefined) activity.name = data.name;
-    if (data.status !== undefined) {
-      activity.status = data.status;
-      if (data.status === 'done' && !activity.finished_date) {
-        activity.finished_date = new Date().toISOString();
-      }
+    if (!response.ok) {
+      throw new Error('Failed to update activity');
     }
-    if (data.scheduled_date !== undefined) activity.scheduled_date = data.scheduled_date ?? null;
-    if (data.assigned_to_id !== undefined) activity.assigned_to_id = data.assigned_to_id;
 
-    return activity;
+    return await response.json();
   },
 
   // Update activity status
   async updateActivityStatus(id: number, status: Activity['status']): Promise<Activity | null> {
-    await delay(300);
-    const activity = activities.find(a => a.id === id);
-    if (activity) {
-      activity.status = status;
-      if (status === 'done' && !activity.finished_date) {
-        activity.finished_date = new Date().toISOString();
-      }
-    }
-    return activity || null;
+    return this.updateActivity(id, { status });
   },
 
   // Add a todo to an activity
   async addTodoToActivity(data: CreateTodoDto): Promise<TodoItem> {
-    await delay(300);
-    const activity = activities.find(a => a.id === data.activity_id);
-    if (!activity) {
-      throw new Error('Activity not found');
+    const response = await authService.fetchWithAuth(`${API_URL}/todos/`, {
+      method: 'POST',
+      body: JSON.stringify({
+        description: data.description,
+        is_done: false,
+        activity_id: data.activity_id,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to add todo');
     }
 
-    const newTodo: TodoItem = {
-      id: nextTodoId++,
-      description: data.description,
-      is_done: false,
-      activity_id: data.activity_id,
-    };
-
-    activity.todos.push(newTodo);
-    return newTodo;
+    return await response.json();
   },
 
-  // Toggle todo status (for supervisor role, but we'll include it)
+  // Toggle todo status
   async toggleTodoStatus(todoId: number): Promise<TodoItem | null> {
-    await delay(200);
-    for (const activity of activities) {
-      const todo = activity.todos.find(t => t.id === todoId);
-      if (todo) {
-        todo.is_done = !todo.is_done;
-        return todo;
-      }
+    // First, get the current todo to know its current state
+    const todoResponse = await authService.fetchWithAuth(`${API_URL}/todos/${todoId}`);
+
+    if (todoResponse.status === 404) {
+      return null;
     }
-    return null;
+
+    if (!todoResponse.ok) {
+      throw new Error('Failed to fetch todo');
+    }
+
+    const todo: TodoItem = await todoResponse.json();
+
+    // Update with toggled status
+    const response = await authService.fetchWithAuth(`${API_URL}/todos/${todoId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        is_done: !todo.is_done,
+      }),
+    });
+
+    if (response.status === 404) {
+      return null;
+    }
+
+    if (!response.ok) {
+      throw new Error('Failed to update todo');
+    }
+
+    return await response.json();
   },
 };
