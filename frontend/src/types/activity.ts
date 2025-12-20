@@ -79,3 +79,21 @@ export interface ActivityWithSupervisors {
   supervisor_count: number;
   supervisors: User[];
 }
+
+export const isActivityMissed = (activity: Activity): boolean => {
+  if (activity.status === "done") {
+    return false;
+  }
+
+  if (!activity.scheduled_date) {
+    return false;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Normalize today to start of day for comparison
+
+  const scheduledDate = new Date(activity.scheduled_date);
+  scheduledDate.setHours(0, 0, 0, 0); // Normalize scheduled_date to start of day
+
+  return scheduledDate < today;
+};
