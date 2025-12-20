@@ -1,19 +1,22 @@
-from typing import List
+from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select
 from database import get_session
-from models import Activity
+from models import Activity, User
 from schemas import ActivityCreate, ActivityRead, ActivityUpdate
+from routers.auth import get_current_user
 
 router = APIRouter(prefix="/activities", tags=["activities"])
 
 @router.post("/", response_model=ActivityRead, status_code=201)
-def create_activity(*, session: Session = Depends(get_session), activity: ActivityCreate):
-    # For now, we assume created_by_id is passed or handled via auth later. 
-    # Since ActivityCreate doesn't have created_by_id, we might default it or leave it None.
-    # The prompt asked for basic CRUD, so we'll just map the fields.
-    # Note: A real app would get the current user from the token.
+def create_activity(
+    *,
+    session: Session = Depends(get_session),
+    current_user: Annotated[User, Depends(get_current_user)],
+    activity: ActivityCreate
+):
     db_activity = Activity.model_validate(activity)
+    db_activity.created_by_id = current_user.id
     session.add(db_activity)
     session.commit()
     session.refresh(db_activity)
@@ -28,6 +31,25 @@ def read_activities(
 ):
     activities = session.exec(select(Activity).offset(offset).limit(limit)).all()
     return activities
+
+@router.get("/by-creator/{creator_id}")
+def read_activities_by_creator(
+    *,
+    session: Session = Depends(get_session),
+    creator_id: int,
+):
+    activities = session.exec(
+        select(Activity).where(Activity.created_by_id == creator_id)
+    ).all()
+
+    # Return activities with their todos
+    result = []
+    for activity in activities:
+        activity_dict = activity.model_dump()
+        activity_dict['todos'] = [todo.model_dump() for todo in activity.todos]
+        result.append(activity_dict)
+
+    return result
 
 @router.get("/{activity_id}", response_model=ActivityRead)
 def read_activity(*, session: Session = Depends(get_session), activity_id: int):

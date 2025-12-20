@@ -5,24 +5,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
-import type { UserRole } from '@/contexts/AuthContext';
+import { AlertCircle } from 'lucide-react';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, user } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [selectedRole, setSelectedRole] = useState<UserRole>('supervisor');
-  const [errors, setErrors] = useState({ email: '', password: '' });
+  const [errors, setErrors] = useState({ email: '', password: '', general: '' });
+  const [isLoading, setIsLoading] = useState(false);
 
   React.useEffect(() => {
-    if (isAuthenticated) {
-      navigate(selectedRole === 'supervisor' ? '/dashboard/supervisor' : '/dashboard/preventionist');
+    if (isAuthenticated && user) {
+      navigate(user.role === 'supervisor' ? '/dashboard/supervisor' : '/dashboard/preventionist');
     }
-  }, [isAuthenticated, navigate, selectedRole]);
+  }, [isAuthenticated, user, navigate]);
 
   const validateForm = () => {
-    const newErrors = { email: '', password: '' };
+    const newErrors = { email: '', password: '', general: '' };
     let isValid = true;
 
     if (!email.trim()) {
@@ -45,15 +45,28 @@ const LoginPage = () => {
     return isValid;
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (validateForm() && selectedRole) {
-      login(email, selectedRole);
-      const redirectPath = selectedRole === 'supervisor'
-        ? '/dashboard/supervisor'
-        : '/dashboard/preventionist';
-      navigate(redirectPath);
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsLoading(true);
+    setErrors({ email: '', password: '', general: '' });
+
+    try {
+      await login(email, password);
+      // Navigation will happen via the useEffect above
+    } catch (error) {
+      console.error('Login error:', error);
+      setErrors({
+        email: '',
+        password: '',
+        general: error instanceof Error ? error.message : 'Error al iniciar sesión. Verifica tus credenciales.',
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -69,6 +82,12 @@ const LoginPage = () => {
         <CardContent>
           <form onSubmit={handleLogin}>
             <div className="grid w-full items-center gap-4">
+              {errors.general && (
+                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-md">
+                  <AlertCircle className="h-4 w-4 text-red-600" />
+                  <p className="text-sm text-red-600">{errors.general}</p>
+                </div>
+              )}
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="email">Correo Electrónico</Label>
                 <Input
@@ -78,9 +97,10 @@ const LoginPage = () => {
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
-                    if (errors.email) setErrors({ ...errors, email: '' });
+                    if (errors.email || errors.general) setErrors({ email: '', password: '', general: '' });
                   }}
                   className={errors.email ? 'border-red-500 focus-visible:ring-red-500' : ''}
+                  disabled={isLoading}
                 />
                 {errors.email && (
                   <p className="text-sm text-red-500 mt-1">{errors.email}</p>
@@ -95,47 +115,38 @@ const LoginPage = () => {
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
-                    if (errors.password) setErrors({ ...errors, password: '' });
+                    if (errors.password || errors.general) setErrors({ email: '', password: '', general: '' });
                   }}
                   className={errors.password ? 'border-red-500 focus-visible:ring-red-500' : ''}
+                  disabled={isLoading}
                 />
                 {errors.password && (
                   <p className="text-sm text-red-500 mt-1">{errors.password}</p>
                 )}
               </div>
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="role">Rol</Label>
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant={selectedRole === 'supervisor' ? 'default' : 'outline'}
-                    className="flex-1"
-                    onClick={() => setSelectedRole('supervisor')}
-                  >
-                    Supervisor
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={selectedRole === 'preventionist' ? 'default' : 'outline'}
-                    className="flex-1"
-                    onClick={() => setSelectedRole('preventionist')}
-                  >
-                    Prevencionista
-                  </Button>
-                </div>
-              </div>
             </div>
           </form>
         </CardContent>
         <CardFooter className="flex justify-between">
-          <Button variant="outline" type="button" onClick={() => {
-            setEmail('');
-            setPassword('');
-            setSelectedRole('supervisor');
-          }}>
+          <Button
+            variant="outline"
+            type="button"
+            onClick={() => {
+              setEmail('');
+              setPassword('');
+              setErrors({ email: '', password: '', general: '' });
+            }}
+            disabled={isLoading}
+          >
             Cancelar
           </Button>
-          <Button type="submit" onClick={handleLogin}>Ingresar</Button>
+          <Button
+            type="submit"
+            onClick={handleLogin}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Ingresando...' : 'Ingresar'}
+          </Button>
         </CardFooter>
       </Card>
     </div>

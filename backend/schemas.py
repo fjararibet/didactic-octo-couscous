@@ -29,7 +29,7 @@ class UserRead(UserBase):
 class ActivityBase(SQLModel):
     name: str
     status: Status = Status.pending
-    scheduled_date: datetime
+    scheduled_date: Optional[datetime] = None
     finished_date: Optional[datetime] = None
     assigned_to_id: Optional[int] = None
 

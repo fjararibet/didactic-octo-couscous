@@ -38,8 +38,8 @@ class Activity(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     status: Status = Field(default=Status.pending, sa_column=Column(SAEnum(Status)))
-    scheduled_date: datetime
-    finished_date: Optional[datetime]
+    scheduled_date: Optional[datetime] = None
+    finished_date: Optional[datetime] = None
 
     created_by_id: Optional[int] = Field(default=None, foreign_key="user.id")
     created_by: Optional[User] = Relationship(
