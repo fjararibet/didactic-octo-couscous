@@ -121,8 +121,8 @@ export const isActivityMissed = (
     return true;
   }
 
-  // An activity is also considered missed if it is "done" but the finished date is not the same day as the scheduled date.
-  if (status === "done" && scheduledDate && finishedDate && scheduledDate.getTime() !== finishedDate.getTime()) {
+  // An activity is also considered missed if the finished date is not the same day as the scheduled date.
+  if (scheduledDate && finishedDate && scheduledDate.getTime() !== finishedDate.getTime()) {
     return true;
   }
 
