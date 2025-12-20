@@ -24,20 +24,20 @@ const NewActivityModal = ({
   onActivityTemplateCreated,
 }: NewActivityModalProps) => {
   const [formData, setFormData] = useState({ name: '' });
-  const [checklist, setChecklist] = useState<string[]>([]);
-  const [newChecklistItem, setNewChecklistItem] = useState('');
+  const [tareas, setTareas] = useState<string[]>([]);
+  const [newTareaItem, setNewTareaItem] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const handleAddChecklistItem = () => {
-    if (newChecklistItem.trim()) {
-      setChecklist([...checklist, newChecklistItem.trim()]);
-      setNewChecklistItem('');
+  const handleAddTareaItem = () => {
+    if (newTareaItem.trim()) {
+      setTareas([...tareas, newTareaItem.trim()]);
+      setNewTareaItem('');
     }
   };
 
-  const handleRemoveChecklistItem = (index: number) => {
-    setChecklist(checklist.filter((_, i) => i !== index));
+  const handleRemoveTareaItem = (index: number) => {
+    setTareas(tareas.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -55,16 +55,16 @@ const NewActivityModal = ({
         name: formData.name,
       });
 
-      if (newTemplate && checklist.length > 0) {
-        await activityTemplateService.addTodoToTemplate(newTemplate.id, 
-          checklist.map(item => ({description: item}))
+      if (newTemplate && tareas.length > 0) {
+        await activityTemplateService.addTodoToTemplate(newTemplate.id,
+          tareas.map(item => ({description: item}))
         );
       }
 
       // Reset form
       setFormData({ name: '' });
-      setChecklist([]);
-      setNewChecklistItem('');
+      setTareas([]);
+      setNewTareaItem('');
 
       onActivityTemplateCreated();
     } catch (err) {
@@ -80,8 +80,8 @@ const NewActivityModal = ({
   const handleClose = () => {
     if (!isSubmitting) {
       setFormData({ name: '' });
-      setChecklist([]);
-      setNewChecklistItem('');
+      setTareas([]);
+      setNewTareaItem('');
       setError('');
       onClose();
     }
@@ -111,24 +111,24 @@ const NewActivityModal = ({
           </div>
 
           <div className="space-y-2">
-            <Label>Checklist</Label>
+            <Label>Lista de Tareas</Label>
             <div className="flex gap-2">
               <Input
-                placeholder="Añadir tarea a la checklist"
-                value={newChecklistItem}
-                onChange={e => setNewChecklistItem(e.target.value)}
+                placeholder="Añadir tarea"
+                value={newTareaItem}
+                onChange={e => setNewTareaItem(e.target.value)}
                 disabled={isSubmitting}
               />
               <Button
                 type="button"
-                onClick={handleAddChecklistItem}
-                disabled={isSubmitting || !newChecklistItem.trim()}
+                onClick={handleAddTareaItem}
+                disabled={isSubmitting || !newTareaItem.trim()}
               >
                 Añadir
               </Button>
             </div>
             <ul className="space-y-2 pt-2">
-              {checklist.map((item, index) => (
+              {tareas.map((item, index) => (
                 <li
                   key={index}
                   className="flex items-center justify-between bg-gray-100 p-2 rounded-md"
@@ -138,7 +138,7 @@ const NewActivityModal = ({
                     type="button"
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleRemoveChecklistItem(index)}
+                    onClick={() => handleRemoveTareaItem(index)}
                   >
                     <X className="h-4 w-4" />
                   </Button>

@@ -178,7 +178,7 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
                                       <div className="flex-1">
                                         <div className="font-bold text-sm text-gray-900 mb-1">{template.name}</div>
                                         <div className="text-xs text-gray-500 font-medium">
-                                          {template.template_todos.length} tareas en la checklist
+                                          {template.template_todos.length} tareas
                                         </div>
                                       </div>
                                       <div
