@@ -339,8 +339,8 @@ def populate():
             session.add(assignment)
 
             # Create Activities for this Supervisor
-            # Randomly assign 2 to 5 activities per supervisor
-            num_activities = random.randint(2, 5)
+            # Randomly assign 15 to 20 activities per supervisor
+            num_activities = random.randint(15, 20)
 
             for _ in range(num_activities):
                 # Choose a random activity template
