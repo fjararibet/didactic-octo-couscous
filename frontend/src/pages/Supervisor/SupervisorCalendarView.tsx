@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/card';
 import SupervisorActivityDetailModal from './SupervisorActivityDetailModal';
 import '../../styles/calendar.css';
+import { activityStatusColors } from '../../styles/colors';
 
 const SupervisorCalendarView = () => {
   const { user } = useAuth();
@@ -59,6 +60,7 @@ const SupervisorCalendarView = () => {
     title: activity.name,
     start: activity.scheduled_date!,
     allDay: true,
+    classNames: [activityStatusColors[activity.status]],
   }));
 
   return (

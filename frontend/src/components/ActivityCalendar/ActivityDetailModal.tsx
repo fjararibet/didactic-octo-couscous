@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CheckCircle2, Circle, Plus } from "lucide-react";
+import { activityStatusColors } from '../../styles/colors';
 
 interface ActivityDetailModalProps {
   activity: Activity;
@@ -48,21 +49,22 @@ const ActivityDetailModal = ({
   };
 
   const getStatusBadge = (status: Activity["status"]) => {
-    const colors = {
-      pending: "bg-amber-100 text-amber-800",
-      in_progress: "bg-blue-100 text-blue-800",
-      done: "bg-green-100 text-green-800",
-    };
-
     const labels = {
       pending: "Pendiente",
       in_progress: "En Progreso",
       done: "Completado",
     };
 
+    // Using a different set of colors for badges for better visual distinction
+    const badgeColors: Record<Activity["status"], string> = {
+      pending: activityStatusColors.pending.replace("bg-", "bg-opacity-20 text-"), // Example transformation
+      in_progress: activityStatusColors.in_progress.replace("bg-", "bg-opacity-20 text-"),
+      done: activityStatusColors.done.replace("bg-", "bg-opacity-20 text-"),
+    };
+
     return (
       <span
-        className={`px-3 py-1 rounded-full text-sm font-medium ${colors[status]}`}
+        className={`px-3 py-1 rounded-full text-sm font-medium ${badgeColors[status]}`}
       >
         {labels[status]}
       </span>

@@ -16,6 +16,7 @@ import NewActivityModal from './NewActivityModal';
 import esLocale from '@fullcalendar/core/locales/es';
 import { Calendar } from 'lucide-react';
 import '../../styles/calendar.css';
+import { activityStatusColors } from '../../styles/colors';
 
 interface ActivityCalendarViewProps {
   userId: number;
@@ -30,19 +31,6 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
   const [loading, setLoading] = useState(true);
   const [supervisorName, setSupervisorName] = useState<string>('');
   const draggableContainerRef = useRef<HTMLDivElement>(null);
-
-  const getStatusColor = (status: Activity['status']) => {
-    switch (status) {
-      case 'pending':
-        return '#f59e0b';
-      case 'in_progress':
-        return '#3b82f6';
-      case 'done':
-        return '#10b981';
-      default:
-        return '#6b7280';
-    }
-  };
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -98,8 +86,7 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
     }`,
     start: activity.scheduled_date!,
     allDay: true,
-    backgroundColor: getStatusColor(activity.status),
-    borderColor: getStatusColor(activity.status),
+    classNames: [activityStatusColors[activity.status]],
     extendedProps: { activity },
   }));
 
