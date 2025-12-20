@@ -29,7 +29,6 @@ const NewActivityModal = ({
   const [formData, setFormData] = useState({
     name: '',
     scheduled_date: '',
-    scheduled_time: '09:00',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -39,12 +38,10 @@ const NewActivityModal = ({
     if (initialDate) {
       const date = new Date(initialDate);
       const dateString = date.toISOString().split('T')[0];
-      const timeString = date.toTimeString().slice(0, 5);
 
       setFormData(prev => ({
         ...prev,
         scheduled_date: dateString,
-        scheduled_time: timeString || '09:00',
       }));
     }
   }, [initialDate]);
@@ -58,15 +55,14 @@ const NewActivityModal = ({
       return;
     }
 
-    if (!formData.scheduled_date) {
-      setError('La fecha es requerida');
-      return;
-    }
-
     setIsSubmitting(true);
     try {
-      // Combine date and time
-      const scheduledDateTime = `${formData.scheduled_date}T${formData.scheduled_time}:00`;
+      // Use date with default time if date is provided
+      let scheduledDateTime: string | null = null;
+      if (formData.scheduled_date) {
+        // Create date at noon to avoid timezone issues
+        scheduledDateTime = `${formData.scheduled_date}T12:00:00.000Z`;
+      }
 
       await activityService.createActivity(
         {
@@ -80,7 +76,6 @@ const NewActivityModal = ({
       setFormData({
         name: '',
         scheduled_date: '',
-        scheduled_time: '09:00',
       });
 
       onActivityCreated();
@@ -97,7 +92,6 @@ const NewActivityModal = ({
       setFormData({
         name: '',
         scheduled_date: '',
-        scheduled_time: '09:00',
       });
       setError('');
       onClose();
@@ -130,28 +124,17 @@ const NewActivityModal = ({
 
           {/* Scheduled Date */}
           <div className="space-y-2">
-            <Label htmlFor="activity-date">Fecha Programada</Label>
+            <Label htmlFor="activity-date">Fecha Programada (opcional)</Label>
             <Input
               id="activity-date"
               type="date"
               value={formData.scheduled_date}
               onChange={e => setFormData(prev => ({ ...prev, scheduled_date: e.target.value }))}
               disabled={isSubmitting}
-              required
             />
-          </div>
-
-          {/* Scheduled Time */}
-          <div className="space-y-2">
-            <Label htmlFor="activity-time">Hora Programada</Label>
-            <Input
-              id="activity-time"
-              type="time"
-              value={formData.scheduled_time}
-              onChange={e => setFormData(prev => ({ ...prev, scheduled_time: e.target.value }))}
-              disabled={isSubmitting}
-              required
-            />
+            <p className="text-xs text-gray-500">
+              Dejar vacío para programar más tarde desde el calendario
+            </p>
           </div>
 
           {/* Error Message */}

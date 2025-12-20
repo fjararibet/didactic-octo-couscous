@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin from '@fullcalendar/interaction';
+import interactionPlugin, { Draggable } from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
-import type { EventClickArg, DateSelectArg } from '@fullcalendar/core';
+import type { EventClickArg, DateSelectArg, EventDropArg } from '@fullcalendar/core';
 import type { Activity } from '@/types/activity';
 import { activityService } from '@/services/activityService';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ import { Card } from '@/components/ui/card';
 import ActivityDetailModal from './ActivityDetailModal';
 import NewActivityModal from './NewActivityModal';
 import esLocale from '@fullcalendar/core/locales/es';
+import { Calendar } from 'lucide-react';
 import '../../styles/calendar.css';
 
 interface ActivityCalendarViewProps {
@@ -25,6 +26,8 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
   const [isNewActivityModalOpen, setIsNewActivityModalOpen] = useState(false);
   const [newActivityDate, setNewActivityDate] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const draggableRef = useRef<HTMLDivElement>(null);
+  const draggableInstanceRef = useRef<Draggable | null>(null);
 
   // Load activities
   const loadActivities = async () => {
@@ -43,6 +46,42 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
     loadActivities();
   }, [userId]);
 
+  // Initialize draggable for unscheduled activities
+  useEffect(() => {
+    if (draggableRef.current && !draggableInstanceRef.current) {
+      draggableInstanceRef.current = new Draggable(draggableRef.current, {
+        itemSelector: '.fc-event',
+        eventData: function(eventEl) {
+          const activityId = eventEl.getAttribute('data-activity-id');
+          const activity = activities.find(a => a.id === parseInt(activityId || '0'));
+
+          if (activity) {
+            const completedTodos = activity.todos.filter(t => t.is_done).length;
+            const totalTodos = activity.todos.length;
+
+            return {
+              title: `${activity.name} (${completedTodos}/${totalTodos})`,
+              allDay: true,
+              backgroundColor: getStatusColor(activity.status),
+              borderColor: getStatusColor(activity.status),
+              extendedProps: {
+                activityId: activity.id,
+              }
+            };
+          }
+          return null;
+        }
+      });
+    }
+
+    return () => {
+      if (draggableInstanceRef.current) {
+        draggableInstanceRef.current.destroy();
+        draggableInstanceRef.current = null;
+      }
+    };
+  }, [activities]);
+
   // Get status color
   const getStatusColor = (status: Activity['status']) => {
     switch (status) {
@@ -57,15 +96,20 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
     }
   };
 
-  // Convert activities to calendar events
-  const events = activities.map(activity => {
+  // Separate scheduled and unscheduled activities
+  const scheduledActivities = activities.filter(a => a.scheduled_date !== null);
+  const unscheduledActivities = activities.filter(a => a.scheduled_date === null);
+
+  // Convert scheduled activities to calendar events
+  const events = scheduledActivities.map(activity => {
     const completedTodos = activity.todos.filter(t => t.is_done).length;
     const totalTodos = activity.todos.length;
 
     return {
       id: String(activity.id),
       title: `${activity.name} (${completedTodos}/${totalTodos})`,
-      start: activity.scheduled_date,
+      start: activity.scheduled_date!,
+      allDay: true,
       backgroundColor: getStatusColor(activity.status),
       borderColor: getStatusColor(activity.status),
       extendedProps: {
@@ -102,6 +146,30 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
     setSelectedActivity(null);
   };
 
+  // Handle event drop (when activity is dragged to new date)
+  const handleEventDrop = async (dropInfo: EventDropArg) => {
+    const activity = dropInfo.event.extendedProps.activity as Activity;
+    const newDate = dropInfo.event.start;
+
+    if (!newDate) return;
+
+    try {
+      await activityService.updateActivity(activity.id, {
+        scheduled_date: newDate.toISOString(),
+      });
+      loadActivities();
+    } catch (error) {
+      console.error('Error updating activity date:', error);
+      dropInfo.revert();
+    }
+  };
+
+  // Handle unscheduled activity click
+  const handleUnscheduledActivityClick = (activity: Activity) => {
+    setSelectedActivity(activity);
+    setIsDetailModalOpen(true);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -111,43 +179,127 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
         </Button>
       </div>
 
-      <Card className="p-4">
-        {loading ? (
-          <div className="text-center py-8 text-gray-500">Cargando actividades...</div>
-        ) : (
-          <FullCalendar
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
-            initialView="dayGridMonth"
-            locale={esLocale}
-            headerToolbar={{
-              left: 'prev,next today',
-              center: 'title',
-              right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
-            }}
-            buttonText={{
-              today: 'Hoy',
-              month: 'Mes',
-              week: 'Semana',
-              day: 'Día',
-              list: 'Lista',
-            }}
-            events={events}
-            eventClick={handleEventClick}
-            selectable={true}
-            select={handleDateSelect}
-            height="auto"
-            slotMinTime="07:00:00"
-            slotMaxTime="19:00:00"
-            allDaySlot={false}
-            nowIndicator={true}
-            eventTimeFormat={{
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false,
-            }}
-          />
-        )}
-      </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        {/* Unscheduled Activities Sidebar */}
+        <Card className="p-4 lg:col-span-1">
+          <div className="flex items-center gap-2 mb-4">
+            <Calendar className="h-5 w-5 text-gray-600" />
+            <h3 className="font-semibold text-gray-700">Sin Programar</h3>
+            <span className="text-sm text-gray-500">({unscheduledActivities.length})</span>
+          </div>
+
+          {unscheduledActivities.length > 0 ? (
+            <>
+              <div ref={draggableRef} className="space-y-2">
+                {unscheduledActivities.map(activity => {
+                  const completedTodos = activity.todos.filter(t => t.is_done).length;
+                  const totalTodos = activity.todos.length;
+
+                  return (
+                    <div
+                      key={activity.id}
+                      data-activity-id={activity.id}
+                      onClick={() => handleUnscheduledActivityClick(activity)}
+                      className="fc-event p-4 rounded-xl cursor-move hover:shadow-2xl hover:scale-105 transition-all duration-200 border-l-4"
+                      style={{
+                        borderLeftColor: getStatusColor(activity.status),
+                        backgroundColor: '#ffffff',
+                        boxShadow: `0 2px 8px ${getStatusColor(activity.status)}40`,
+                        border: `2px solid ${getStatusColor(activity.status)}`,
+                        borderLeftWidth: '6px',
+                      }}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <div className="font-bold text-sm text-gray-900 mb-1">{activity.name}</div>
+                          <div className="text-xs text-gray-500 font-medium">
+                            {completedTodos}/{totalTodos} tareas completadas
+                          </div>
+                        </div>
+                        <div
+                          className="w-2 h-2 rounded-full mt-1 flex-shrink-0"
+                          style={{ backgroundColor: getStatusColor(activity.status) }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-gray-500 mt-4 italic">
+                Arrastra las actividades al calendario para programarlas
+              </p>
+            </>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <p className="text-sm">No hay actividades sin programar</p>
+              <p className="text-xs mt-2">Todas las actividades tienen fecha asignada</p>
+            </div>
+          )}
+        </Card>
+
+        {/* Calendar */}
+        <Card className="p-4 lg:col-span-3">
+          {loading ? (
+            <div className="text-center py-8 text-gray-500">Cargando actividades...</div>
+          ) : (
+            <FullCalendar
+              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+              initialView="dayGridMonth"
+              locale={esLocale}
+              headerToolbar={{
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
+              }}
+              buttonText={{
+                today: 'Hoy',
+                month: 'Mes',
+                week: 'Semana',
+                day: 'Día',
+                list: 'Lista',
+              }}
+              events={events}
+              eventClick={handleEventClick}
+              eventDrop={handleEventDrop}
+              editable={true}
+              droppable={true}
+              selectable={true}
+              select={handleDateSelect}
+              height="auto"
+              slotMinTime="07:00:00"
+              slotMaxTime="19:00:00"
+              allDaySlot={false}
+              nowIndicator={true}
+              eventTimeFormat={{
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+              }}
+              drop={(info) => {
+                const activityId = info.draggedEl.getAttribute('data-activity-id');
+                if (activityId) {
+                  const activity = unscheduledActivities.find(a => a.id === parseInt(activityId));
+                  if (activity) {
+                    // Format date as YYYY-MM-DD at noon UTC to avoid timezone issues
+                    const year = info.date.getFullYear();
+                    const month = String(info.date.getMonth() + 1).padStart(2, '0');
+                    const day = String(info.date.getDate()).padStart(2, '0');
+                    const newDate = `${year}-${month}-${day}T12:00:00.000Z`;
+
+                    activityService.updateActivity(activity.id, {
+                      scheduled_date: newDate,
+                    }).then(() => {
+                      loadActivities();
+                    }).catch((error) => {
+                      console.error('Error scheduling activity:', error);
+                    });
+                  }
+                }
+              }}
+            />
+          )}
+        </Card>
+      </div>
 
       {selectedActivity && (
         <ActivityDetailModal
