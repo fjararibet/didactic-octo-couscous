@@ -19,7 +19,7 @@ const SupervisorCalendarView = () => {
     if (!user) return;
     setLoading(true);
     try {
-      const data = await activityService.getActivitiesBySupervisor(user.id);
+      const data = await activityService.getActivitiesByAssignee(user.id);
       setActivities(data);
     } catch (error) {
       console.error('Error loading activities:', error);
