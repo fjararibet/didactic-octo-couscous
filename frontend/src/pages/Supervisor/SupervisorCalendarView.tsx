@@ -6,18 +6,19 @@ import type { Activity } from '@/types/activity';
 import { activityService } from '@/services/activityService';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/card';
+import SupervisorActivityDetailModal from './SupervisorActivityDetailModal';
 import '../../styles/calendar.css';
 
 const SupervisorCalendarView = () => {
   const { user } = useAuth();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
 
   const loadActivities = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     try {
-      // Assuming the logged-in user is the supervisor
       const data = await activityService.getActivitiesBySupervisor(user.id);
       setActivities(data);
     } catch (error) {
@@ -31,6 +32,22 @@ const SupervisorCalendarView = () => {
     loadActivities();
   }, [loadActivities]);
 
+  const handleEventClick = (clickInfo: { event: { id: string } }) => {
+    const activityId = parseInt(clickInfo.event.id, 10);
+    const activity = activities.find(a => a.id === activityId);
+    if (activity) {
+      setSelectedActivity(activity);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setSelectedActivity(null);
+  };
+
+  const handleUpdate = () => {
+    loadActivities();
+  };
+
   const scheduledActivities = activities.filter(activity => activity.scheduled_date !== null);
 
   const events = scheduledActivities.map(activity => ({
@@ -41,30 +58,42 @@ const SupervisorCalendarView = () => {
   }));
 
   return (
-    <Card className="p-4 mt-6">
-      <h2 className="text-xl font-bold text-gray-800 mb-4">Calendario de Actividades</h2>
-      {loading ? (
-        <div className="text-center py-8 text-gray-500">Cargando actividades...</div>
-      ) : (
-        <FullCalendar
-          plugins={[dayGridPlugin]}
-          initialView="dayGridMonth"
-          locale={esLocale}
-          headerToolbar={{
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth',
-          }}
-          buttonText={{
-            today: 'Hoy',
-            month: 'Mes',
-          }}
-          events={events}
-          height="auto"
+    <>
+      <Card className="p-4 mt-6">
+        <h2 className="text-xl font-bold text-gray-800 mb-4">Calendario de Actividades</h2>
+        {loading ? (
+          <div className="text-center py-8 text-gray-500">Cargando actividades...</div>
+        ) : (
+          <FullCalendar
+            plugins={[dayGridPlugin]}
+            initialView="dayGridMonth"
+            locale={esLocale}
+            headerToolbar={{
+              left: 'prev,next today',
+              center: 'title',
+              right: 'dayGridMonth',
+            }}
+            buttonText={{
+              today: 'Hoy',
+              month: 'Mes',
+            }}
+            events={events}
+            eventClick={handleEventClick}
+            height="auto"
+          />
+        )}
+      </Card>
+      {selectedActivity && (
+        <SupervisorActivityDetailModal
+          activity={selectedActivity}
+          isOpen={!!selectedActivity}
+          onClose={handleCloseModal}
+          onUpdate={handleUpdate}
         />
       )}
-    </Card>
+    </>
   );
 };
 
 export default SupervisorCalendarView;
+
