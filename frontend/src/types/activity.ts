@@ -19,7 +19,7 @@ export interface Activity {
   scheduled_date: string | null;
   finished_date: string | null;
   created_by_id: number;
-  assigned_to_id: number | null;
+  assigned_to_id: number;
   activity_template_id: number | null;
   created_by: {
     id: number;
@@ -32,7 +32,7 @@ export interface Activity {
     username: string;
     email: string;
     role: 'preventionist' | 'supervisor' | 'admin';
-  } | null;
+  };
   todos: {
     id: number;
     description: string;
@@ -56,7 +56,7 @@ export interface ActivityTemplate {
 export interface CreateActivityDto {
   name: string;
   scheduled_date?: string | null;
-  assigned_to_id?: number;
+  assigned_to_id: number;
   activity_template_id?: number;
 }
 

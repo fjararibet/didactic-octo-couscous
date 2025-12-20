@@ -1,6 +1,6 @@
 import random
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime
 from sqlmodel import Session, delete, select
 from database import engine
 from models import (

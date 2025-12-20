@@ -73,8 +73,8 @@ class Activity(SQLModel, table=True):
         sa_relationship_kwargs={"foreign_keys": "[Activity.created_by_id]"},
     )
 
-    assigned_to_id: Optional[int] = Field(default=None, foreign_key="user.id")
-    assigned_to: Optional[User] = Relationship(
+    assigned_to_id: int = Field(foreign_key="user.id")
+    assigned_to: "User" = Relationship(
         back_populates="activities_assigned",
         sa_relationship_kwargs={"foreign_keys": "[Activity.assigned_to_id]"},
     )

@@ -39,10 +39,11 @@ class ActivityBase(SQLModel):
     status: Status = Status.pending
     scheduled_date: Optional[datetime] = None
     finished_date: Optional[datetime] = None
-    assigned_to_id: Optional[int] = None
+    assigned_to_id: int
 
 # Properties to receive on item creation
 class ActivityCreate(ActivityBase):
+    name: str
     activity_template_id: Optional[int] = None
 
 class ActivityUpdate(SQLModel):
@@ -55,7 +56,7 @@ class ActivityUpdate(SQLModel):
 class ActivityRead(ActivityBase):
     id: int
     created_by: UserRead
-    assigned_to: Optional[UserRead] = None
+    assigned_to: UserRead
     todos: list["TodoItemRead"] = []
 
 

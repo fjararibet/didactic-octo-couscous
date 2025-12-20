@@ -22,6 +22,11 @@ def create_activity(
     current_user: Annotated[User, Depends(get_current_user)],
     activity: ActivityCreate,
 ):
+    # Check if the assigned user exists
+    assigned_user = session.get(User, activity.assigned_to_id)
+    if not assigned_user:
+        raise HTTPException(status_code=404, detail="Assigned user not found")
+
     db_activity = Activity.model_validate(activity)
     db_activity.created_by_id = current_user.id
 
