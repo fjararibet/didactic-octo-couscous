@@ -17,5 +17,5 @@ repos:
         name: frontend check
         entry: bash -c "cd frontend && npm install && npm run check"
         language: system
-        types: [ts]
+        types: [ts, tsx]
         files: ^frontend/
