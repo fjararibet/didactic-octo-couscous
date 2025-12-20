@@ -1,6 +1,6 @@
-from typing import Optional, List
+from typing import Optional
 from datetime import datetime
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel
 from models import Role, Status
 
 # Shared properties
@@ -23,6 +23,11 @@ class UserUpdate(SQLModel):
 # Properties to return to client
 class UserRead(UserBase):
     id: int
+
+
+class SupervisorAssignmentCreate(SQLModel):
+    supervisor_id: int
+    preventionist_id: int
 
 
 # Shared properties
