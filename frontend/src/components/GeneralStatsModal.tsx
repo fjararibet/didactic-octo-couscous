@@ -19,11 +19,9 @@ const statusTranslations: { [key: string]: string } = {
   missed: 'Atrasada',
 };
 
-interface SupervisorStatsModalProps {
+interface GeneralStatsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  userId: number;
-  supervisorName: string;
 }
 
 interface ActivityStats {
@@ -38,7 +36,7 @@ interface ActivityStats {
   completed_tasks: number;
 }
 
-export const SupervisorStatsModal = ({ isOpen, onClose, userId, supervisorName }: SupervisorStatsModalProps) => {
+export const GeneralStatsModal = ({ isOpen, onClose }: GeneralStatsModalProps) => {
   const [stats, setStats] = useState<ActivityStats | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -46,10 +44,10 @@ export const SupervisorStatsModal = ({ isOpen, onClose, userId, supervisorName }
     const fetchStats = async () => {
       setLoading(true);
       try {
-        const data = await activityService.getDetailedActivityStats(userId);
+        const data = await activityService.getGeneralDetailedActivityStats();
         setStats(data);
       } catch (error) {
-        console.error('Error fetching stats:', error);
+        console.error('Error fetching general stats:', error);
       } finally {
         setLoading(false);
       }
@@ -58,7 +56,7 @@ export const SupervisorStatsModal = ({ isOpen, onClose, userId, supervisorName }
     if (isOpen) {
       fetchStats();
     }
-  }, [isOpen, userId]);
+  }, [isOpen]);
 
   if (!stats && !loading) return null;
 
@@ -83,8 +81,8 @@ export const SupervisorStatsModal = ({ isOpen, onClose, userId, supervisorName }
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Estadísticas de {supervisorName}</DialogTitle>
-          <p className="text-sm text-gray-500">Resumen del mes actual</p>
+          <DialogTitle className="text-2xl">Estadísticas Generales</DialogTitle>
+          <p className="text-sm text-gray-500">Resumen consolidado de todos los supervisores a cargo</p>
         </DialogHeader>
 
         {loading ? (

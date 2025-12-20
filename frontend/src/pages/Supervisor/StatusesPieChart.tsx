@@ -41,28 +41,42 @@ const statusReverseTranslations: { [key: string]: string } = Object.fromEntries(
   Object.entries(statusTranslations).map(([key, value]) => [value, key])
 );
 
+interface DetailedStats {
+  total_activities: number;
+  upcoming_activities: number;
+  completion_rate: number;
+  completion_trend: number;
+  avg_task_completion: number;
+  completed_tasks: number;
+  total_tasks: number;
+}
+
 export const StatusesPieChart = ({ userId }: { userId: number }) => {
   const [data, setData] = useState<{ name: string; value: number }[]>([]);
-  const [detailedStats, setDetailedStats] = useState<any>(null);
+  const [detailedStats, setDetailedStats] = useState<DetailedStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
-    Promise.all([
-      activityService.getActivityStatusStats(userId),
-      activityService.getDetailedActivityStats(userId)
-    ]).then(([stats, detailed]) => {
-      const chartData = Object.entries(stats).map(([name, value]) => ({
-        name: statusTranslations[name] || name,
-        value,
-      }));
-      setData(chartData);
-      setDetailedStats(detailed);
-    }).catch((error) => {
-      console.error('Error fetching stats:', error);
-    }).finally(() => {
-      setLoading(false);
-    });
+    const fetchStats = async () => {
+      try {
+        const [stats, detailed] = await Promise.all([
+          activityService.getActivityStatusStats(userId),
+          activityService.getDetailedActivityStats(userId)
+        ]);
+        const chartData = Object.entries(stats).map(([name, value]) => ({
+          name: statusTranslations[name] || name,
+          value,
+        }));
+        setData(chartData);
+        setDetailedStats(detailed);
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
   }, [userId]);
 
   if (loading) {

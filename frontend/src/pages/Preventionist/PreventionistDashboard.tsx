@@ -5,13 +5,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from '@/contexts/AuthContext';
 import { userService } from '@/services/userService';
 import type { UserInfo } from '@/services/authService';
-import { User } from 'lucide-react';
+import { User, BarChart2 } from 'lucide-react';
+import { SupervisorStatsModal } from '@/components/SupervisorStatsModal';
+import { GeneralStatsModal } from '@/components/GeneralStatsModal';
 
 const PreventionistDashboard = () => {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
   const [supervisors, setSupervisors] = useState<UserInfo[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Stats modal state
+  const [isGeneralStatsOpen, setIsGeneralStatsOpen] = useState(false);
+  const [selectedSupervisor, setSelectedSupervisor] = useState<{id: number, name: string} | null>(null);
 
   useEffect(() => {
     const fetchSupervisors = async () => {
@@ -35,6 +41,10 @@ const PreventionistDashboard = () => {
 
   const handleSelectSupervisor = (supervisorId: number) => {
     navigate(`/preventionist/supervisor/${supervisorId}`);
+  };
+
+  const handleOpenStats = (supervisorId: number, name: string) => {
+    setSelectedSupervisor({ id: supervisorId, name });
   };
 
   const getInitials = (name: string) => {
@@ -69,6 +79,14 @@ const PreventionistDashboard = () => {
             <p className="text-sm text-gray-500 mt-1">Sesión: {user?.email}</p>
           </div>
           <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2 border-blue-200 hover:bg-blue-50 text-blue-700"
+              onClick={() => setIsGeneralStatsOpen(true)}
+            >
+              <BarChart2 className="w-4 h-4" />
+              Estadísticas Generales
+            </Button>
             <Button variant="outline" onClick={() => navigate('/preventionist/activities')}>
               Ver Actividades
             </Button>
@@ -107,13 +125,22 @@ const PreventionistDashboard = () => {
                     </p>
                     <p className="text-xs text-gray-600 mb-4">{supervisor.email}</p>
 
-                    {/* Button */}
-                    <Button
-                      className="w-full cursor-pointer"
-                      onClick={() => handleSelectSupervisor(supervisor.id)}
-                    >
-                      Ver Actividades
-                    </Button>
+                    {/* Buttons */}
+                    <div className="flex gap-2 w-full">
+                      <Button
+                        variant="outline"
+                        className="flex-1 cursor-pointer"
+                        onClick={() => handleOpenStats(supervisor.id, supervisor.username)}
+                      >
+                        Ver Estadísticas
+                      </Button>
+                      <Button
+                        className="flex-1 cursor-pointer"
+                        onClick={() => handleSelectSupervisor(supervisor.id)}
+                      >
+                        Ver Actividades
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -121,6 +148,21 @@ const PreventionistDashboard = () => {
           </div>
         )}
       </div>
+
+      {/* Modals */}
+      <GeneralStatsModal 
+        isOpen={isGeneralStatsOpen} 
+        onClose={() => setIsGeneralStatsOpen(false)} 
+      />
+      
+      {selectedSupervisor && (
+        <SupervisorStatsModal
+          isOpen={!!selectedSupervisor}
+          onClose={() => setSelectedSupervisor(null)}
+          userId={selectedSupervisor.id}
+          supervisorName={selectedSupervisor.name}
+        />
+      )}
     </div>
   );
 };
