@@ -8,6 +8,7 @@ When changing `models.py` always create new migrations.
 
 - To create a new migration: `alembic revision --autogenerate -m "description of changes"`
 - To apply the migration to the db: `alembic upgrade head`
+- Whenever there's migrations, update the `populate_db.py` script accordingly.
 
 
 # Frontend
