@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
 import esLocale from '@fullcalendar/core/locales/es';
 import type { Activity } from '@/types/activity';
 import { activityService } from '@/services/activityService';
@@ -76,17 +77,19 @@ const SupervisorCalendarView = () => {
           <div className="text-center py-8 text-gray-500">Cargando actividades...</div>
         ) : (
           <FullCalendar
-            plugins={[dayGridPlugin]}
+            plugins={[dayGridPlugin, timeGridPlugin]}
             initialView="dayGridMonth"
             locale={esLocale}
             headerToolbar={{
               left: 'prev,next today',
               center: 'title',
-              right: 'dayGridMonth',
+              right: 'dayGridMonth,timeGridWeek,timeGridDay',
             }}
             buttonText={{
               today: 'Hoy',
               month: 'Mes',
+              week: 'Semana',
+              day: 'Día',
             }}
             events={events}
             eventClick={handleEventClick}
