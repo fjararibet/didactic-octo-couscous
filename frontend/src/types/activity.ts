@@ -80,8 +80,11 @@ export interface ActivityWithSupervisors {
   supervisors: User[];
 }
 
-export const isActivityMissed = (activity: Activity): boolean => {
-  if (activity.status === "done") {
+export const isActivityMissed = (
+  activity: Activity,
+  status: Activity['status']
+): boolean => {
+  if (status === "done") {
     return false;
   }
 

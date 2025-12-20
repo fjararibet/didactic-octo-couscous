@@ -31,7 +31,7 @@ const SupervisorActivityDetailModal = ({
   const [localActivity, setLocalActivity] = useState(activity);
   const todos = localActivity.todos || [];
   const currentStatus = calculateActivityStatus(localActivity);
-  const missed = isActivityMissed(localActivity);
+  const missed = isActivityMissed(localActivity, currentStatus);
 
   useEffect(() => {
     setLocalActivity(activity);

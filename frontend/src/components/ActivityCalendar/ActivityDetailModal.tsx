@@ -32,7 +32,7 @@ const ActivityDetailModal = ({
   const [newTodoDescription, setNewTodoDescription] = useState("");
   const [isAddingTodo, setIsAddingTodo] = useState(false);
   const currentStatus = calculateActivityStatus(activity);
-  const missed = isActivityMissed(activity);
+  const missed = isActivityMissed(activity, currentStatus);
 
   const handleAddTodo = async () => {
     if (!newTodoDescription.trim()) return;
