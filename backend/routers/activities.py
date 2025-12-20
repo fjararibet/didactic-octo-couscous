@@ -6,7 +6,7 @@ from models import Activity, User
 from schemas import ActivityCreate, ActivityRead, ActivityUpdate
 from routers.auth import get_current_user
 
-router = APIRouter(prefix="/activities", tags=["activities"])
+router = APIRouter(tags=["activities"])
 
 @router.post("/", response_model=ActivityRead, status_code=201)
 def create_activity(

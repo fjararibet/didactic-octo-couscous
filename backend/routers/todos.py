@@ -5,7 +5,7 @@ from database import get_session
 from models import TodoItem
 from schemas import TodoItemCreate, TodoItemRead, TodoItemUpdate
 
-router = APIRouter(prefix="/todos", tags=["todos"])
+router = APIRouter(tags=["todos"])
 
 @router.post("/", response_model=TodoItemRead, status_code=201)
 def create_todo_item(*, session: Session = Depends(get_session), todo_item: TodoItemCreate):

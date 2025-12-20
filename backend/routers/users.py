@@ -6,7 +6,7 @@ from schemas import UserCreate, UserRead, SupervisorAssignmentCreate
 from security import get_password_hash
 from routers.auth import get_current_user
 
-router = APIRouter(prefix="/users", tags=["users"])
+router = APIRouter(tags=["users"])
 
 @router.get("/me", response_model=UserRead)
 def read_users_me(current_user: User = Depends(get_current_user)):
