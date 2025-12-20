@@ -15,6 +15,17 @@ export const activityService = {
     return await response.json();
   },
 
+  // Get all activities for a user (by assignee)
+  async getActivitiesByAssignee(userId: number): Promise<Activity[]> {
+    const response = await authService.fetchWithAuth(`${API_URL}/activities/by-assignee/${userId}`);
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch activities');
+    }
+
+    return await response.json();
+  },
+
   // Get a single activity by ID
   async getActivityById(id: number): Promise<Activity | null> {
     const response = await authService.fetchWithAuth(`${API_URL}/activities/${id}`);

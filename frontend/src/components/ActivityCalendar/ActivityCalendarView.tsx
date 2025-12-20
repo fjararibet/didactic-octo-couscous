@@ -48,7 +48,7 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
     setLoading(true);
     try {
       const [activityData, templateData, userData] = await Promise.all([
-        activityService.getActivitiesByCreator(userId),
+        activityService.getActivitiesByAssignee(userId),
         activityTemplateService.getActivityTemplates(),
         userService.getUserById(userId),
       ]);

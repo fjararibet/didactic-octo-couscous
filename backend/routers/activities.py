@@ -73,6 +73,18 @@ def read_activities_by_creator(
     return activities
 
 
+@router.get("/by-assignee/{assignee_id}", response_model=List[ActivityRead])
+def read_activities_by_assignee(
+    *,
+    session: Session = Depends(get_session),
+    assignee_id: int,
+):
+    activities = session.exec(
+        select(Activity).where(Activity.assigned_to_id == assignee_id)
+    ).all()
+    return activities
+
+
 @router.get("/{activity_id}", response_model=ActivityRead)
 def read_activity(*, session: Session = Depends(get_session), activity_id: int):
     activity = session.get(Activity, activity_id)
