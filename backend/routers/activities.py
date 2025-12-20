@@ -42,7 +42,10 @@ def create_activity(
     session.commit()
     session.refresh(db_activity)
 
-    session.refresh(db_activity, attribute_names=["created_by", "assigned_to"])
+    # Refresh relationships to ensure they are loaded in the response
+    session.refresh(
+        db_activity, attribute_names=["created_by", "assigned_to", "todos"]
+    )
 
     return db_activity
 

@@ -50,6 +50,7 @@ export const activityService = {
         scheduled_date: data.scheduled_date ?? null,
         finished_date: null,
         assigned_to_id: data.assigned_to_id ?? null,
+        activity_template_id: data.activity_template_id ?? null,
       }),
     });
 
@@ -58,8 +59,6 @@ export const activityService = {
     }
 
     const newActivity = await response.json();
-    newActivity.todos = [];
-
     return newActivity;
   },
 

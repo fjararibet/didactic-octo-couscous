@@ -56,6 +56,7 @@ class ActivityRead(ActivityBase):
     id: int
     created_by: UserRead
     assigned_to: Optional[UserRead] = None
+    todos: list["TodoItemRead"] = []
 
 
 class TodoItemBase(SQLModel):
