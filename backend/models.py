@@ -2,7 +2,7 @@ from typing import List, Optional
 from datetime import datetime
 from sqlmodel import Field, Relationship, SQLModel
 from enum import Enum
-from sqlalchemy import Column
+from sqlalchemy import Column, Enum as SAEnum
 
 
 class Role(str, Enum):
@@ -20,7 +20,7 @@ class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     username: str = Field(index=True)
     email: str = Field(unique=True, index=True)
-    role: Role = Field(sa_column=Column(Enum(Role)))
+    role: Role = Field(sa_column=Column(SAEnum(Role)))
     password_hash: str
 
     activities_created: List["Activity"] = Relationship(
@@ -36,7 +36,7 @@ class User(SQLModel, table=True):
 class Activity(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
-    status: Status = Field(default=Status.pending, sa_column=Column(Enum(Status)))
+    status: Status = Field(default=Status.pending, sa_column=Column(SAEnum(Status)))
     scheduled_date: datetime
     finished_date: Optional[datetime]
 
