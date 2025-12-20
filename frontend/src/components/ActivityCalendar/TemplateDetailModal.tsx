@@ -34,7 +34,7 @@ const TemplateDetailModal = ({ template, isOpen, onClose }: TemplateDetailModalP
               <ul className="space-y-2">
                 {template.template_todos.map((todo) => (
                   <li key={todo.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                    <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 shrink-0" />
                     <span className="text-gray-800">{todo.description}</span>
                   </li>
                 ))}
