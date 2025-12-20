@@ -8,6 +8,7 @@ from sqlalchemy import Column, Enum as SAEnum
 class Role(str, Enum):
     preventionist = "preventionist"
     supervisor = "supervisor"
+    admin = "admin"
 
 
 class Status(str, Enum):
