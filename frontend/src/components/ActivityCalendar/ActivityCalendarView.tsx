@@ -17,6 +17,7 @@ import esLocale from '@fullcalendar/core/locales/es';
 import { Calendar } from 'lucide-react';
 import '../../styles/calendar.css';
 import { activityStatusColors } from '../../styles/colors';
+import { calculateActivityStatus } from '../../lib/utils';
 
 interface ActivityCalendarViewProps {
   userId: number;
@@ -75,20 +76,23 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
     }
   }, [activityTemplates]); // Re-initialize if templates change
 
-  const events = activities.map(activity => ({
-    id: String(activity.id),
-    title: `${activity.name} ${
-      activity.todos.length > 0
-        ? `(${Math.round(
-            (activity.todos.filter(t => t.is_done).length / activity.todos.length) * 100
-          )}%)`
-        : ''
-    }`,
-    start: activity.scheduled_date!,
-    allDay: true,
-    classNames: [activityStatusColors[activity.status]],
-    extendedProps: { activity },
-  }));
+  const events = activities.map(activity => {
+    const status = calculateActivityStatus(activity);
+    return {
+      id: String(activity.id),
+      title: `${activity.name} ${
+        activity.todos.length > 0
+          ? `(${Math.round(
+              (activity.todos.filter(t => t.is_done).length / activity.todos.length) * 100
+            )}%)`
+          : ''
+      }`,
+      start: activity.scheduled_date!,
+      allDay: true,
+      classNames: [activityStatusColors[status]],
+      extendedProps: { activity: { ...activity, status } },
+    };
+  });
 
   const handleEventClick = (clickInfo: EventClickArg) => {
     const activity = clickInfo.event.extendedProps.activity as Activity;

@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card';
 import SupervisorActivityDetailModal from './SupervisorActivityDetailModal';
 import '../../styles/calendar.css';
 import { activityStatusColors } from '../../styles/colors';
+import { calculateActivityStatus } from '../../lib/utils';
 
 const SupervisorCalendarView = () => {
   const { user } = useAuth();
@@ -55,13 +56,17 @@ const SupervisorCalendarView = () => {
 
   const scheduledActivities = activities.filter(activity => activity.scheduled_date !== null);
   
-  const events = scheduledActivities.map(activity => ({
-    id: String(activity.id),
-    title: activity.name,
-    start: activity.scheduled_date!,
-    allDay: true,
-    classNames: [activityStatusColors[activity.status]],
-  }));
+  const events = scheduledActivities.map(activity => {
+    const status = calculateActivityStatus(activity);
+    return {
+      id: String(activity.id),
+      title: activity.name,
+      start: activity.scheduled_date!,
+      allDay: true,
+      classNames: [activityStatusColors[status]],
+      extendedProps: { activity: { ...activity, status } },
+    };
+  });
 
   return (
     <>

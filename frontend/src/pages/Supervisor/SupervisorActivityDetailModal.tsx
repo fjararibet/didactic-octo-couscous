@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle2, Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { activityStatusColors } from '../../styles/colors';
+import { calculateActivityStatus } from '../../lib/utils';
 
 interface SupervisorActivityDetailModalProps {
   activity: Activity;
@@ -29,6 +30,7 @@ const SupervisorActivityDetailModal = ({
   const [localActivity, setLocalActivity] = useState(activity);
   const [isDirty, setIsDirty] = useState(false);
   const todos = localActivity.todos || [];
+  const currentStatus = calculateActivityStatus(localActivity);
 
   const handleToggleTodo = async (todoId: number) => {
     try {
@@ -103,7 +105,7 @@ const SupervisorActivityDetailModal = ({
               <span className="text-sm font-medium text-gray-600">
                 Estado:
               </span>
-              {getStatusBadge(localActivity.status)}
+              {getStatusBadge(currentStatus)}
             </div>
 
             {localActivity.scheduled_date && (

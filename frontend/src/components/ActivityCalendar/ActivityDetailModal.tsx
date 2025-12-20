@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CheckCircle2, Circle, Plus } from "lucide-react";
 import { activityStatusColors } from '../../styles/colors';
+import { calculateActivityStatus } from '../../lib/utils';
 
 interface ActivityDetailModalProps {
   activity: Activity;
@@ -29,6 +30,7 @@ const ActivityDetailModal = ({
 }: ActivityDetailModalProps) => {
   const [newTodoDescription, setNewTodoDescription] = useState("");
   const [isAddingTodo, setIsAddingTodo] = useState(false);
+  const currentStatus = calculateActivityStatus(activity);
 
   const handleAddTodo = async () => {
     if (!newTodoDescription.trim()) return;
@@ -99,7 +101,7 @@ const ActivityDetailModal = ({
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-gray-600">Estado:</span>
-              {getStatusBadge(activity.status)}
+              {getStatusBadge(currentStatus)}
             </div>
 
             {activity.scheduled_date && (
