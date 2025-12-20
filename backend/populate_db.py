@@ -1,5 +1,5 @@
 import random
-import uuid
+# import uuid
 from datetime import datetime
 from sqlmodel import Session, delete, select
 from database import engine
@@ -316,8 +316,8 @@ def populate():
     print("Creating Preventionists...")
     for i in range(1):
         nombre_completo = generar_nombre_completo()
-        uid = str(uuid.uuid4())[:8]
-        email = f"prev_{uid}@example.com"
+        # uid = str(uuid.uuid4())[:8]
+        email = f"prev_{i}@example.com"
 
         user = User(
             username=nombre_completo,
@@ -345,12 +345,12 @@ def populate():
     for prev in preventionists:
         # Each preventionist has between 5 and 20 supervisors
         # num_supervisors = random.randint(5, 20)
-        num_supervisors = 5
+        num_supervisors = 6
 
         for j in range(num_supervisors):
             nombre_completo = generar_nombre_completo()
-            uid = str(uuid.uuid4())[:8]
-            email = f"sup_{uid}@example.com"
+            # uid = str(uuid.uuid4())[:8]
+            email = f"sup_{j}@example.com"
 
             supervisor = User(
                 username=nombre_completo,
@@ -371,6 +371,7 @@ def populate():
             # Create Activities for this Supervisor
             # Randomly assign 2 to 5 activities per supervisor
             num_activities = random.randint(20, 30)
+            num_activities = 0
 
             for _ in range(num_activities):
                 # Choose a random activity template
