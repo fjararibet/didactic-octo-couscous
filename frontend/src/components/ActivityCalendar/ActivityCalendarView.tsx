@@ -164,7 +164,7 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
                                   <div
                                     key={template.id}
                                     data-template-id={template.id}
-                                    className="fc-event p-4 rounded-xl cursor-move hover:shadow-2xl hover:scale-105 border-l-4 template-card"
+                                    className="fc-event p-4 rounded-xl cursor-move hover:shadow-2xl hover:scale-105 border-l-4 template-card relative group"
                                     style={{
                                       borderLeftColor: '#6b7280', // gray
                                       backgroundColor: '#ffffff',
@@ -186,6 +186,25 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
                                         style={{ backgroundColor: '#6b7280' }} // gray
                                       />
                                     </div>
+
+                                    {/* Tooltip con lista de tareas */}
+                                    {template.template_todos.length > 0 && (
+                                      <div className="absolute bottom-full mb-2 left-0 right-0 z-[9999] hidden group-hover:block bg-gray-900 text-white text-xs rounded-lg shadow-xl p-3 max-w-xs">
+                                        <div className="font-semibold mb-2 text-gray-100">Tareas de la plantilla:</div>
+                                        <ul className="space-y-1.5 max-h-48 overflow-y-auto">
+                                          {template.template_todos.map((todo, idx) => (
+                                            <li key={todo.id} className="flex items-start gap-2">
+                                              <span className="text-gray-400 shrink-0">{idx + 1}.</span>
+                                              <span className="text-gray-200">{todo.description}</span>
+                                            </li>
+                                          ))}
+                                        </ul>
+                                        {/* Flecha del tooltip */}
+                                        <div
+                                          className="absolute top-full left-4 border-8 border-transparent border-t-gray-900"
+                                        />
+                                      </div>
+                                    )}
                                   </div>              ))}
             </div>
           ) : (
