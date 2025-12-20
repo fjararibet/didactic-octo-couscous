@@ -51,6 +51,7 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
     if (draggableRef.current && !draggableInstanceRef.current) {
       draggableInstanceRef.current = new Draggable(draggableRef.current, {
         itemSelector: '.fc-event',
+        longPressDelay: 0,
         eventData: function(eventEl) {
           const activityId = eventEl.getAttribute('data-activity-id');
           const activity = activities.find(a => a.id === parseInt(activityId || '0'));
@@ -210,13 +211,14 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
                       key={activity.id}
                       data-activity-id={activity.id}
                       onClick={() => handleUnscheduledActivityClick(activity)}
-                      className="fc-event p-4 rounded-xl cursor-move hover:shadow-2xl hover:scale-105 transition-all duration-200 border-l-4"
+                      className="fc-event p-4 rounded-xl cursor-move hover:shadow-2xl hover:scale-105 border-l-4 unscheduled-activity"
                       style={{
                         borderLeftColor: getStatusColor(activity.status),
                         backgroundColor: '#ffffff',
                         boxShadow: `0 2px 8px ${getStatusColor(activity.status)}40`,
                         border: `2px solid ${getStatusColor(activity.status)}`,
                         borderLeftWidth: '6px',
+                        transition: 'box-shadow 0.2s ease, transform 0.2s ease',
                       }}
                     >
                       <div className="flex items-start justify-between gap-2">
@@ -285,6 +287,10 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
                 minute: '2-digit',
                 hour12: false,
               }}
+              snapDuration="00:15:00"
+              eventDragMinDistance={5}
+              longPressDelay={0}
+              eventDurationEditable={false}
               drop={async (info) => {
                 const activityId = info.draggedEl.getAttribute('data-activity-id');
                 if (activityId) {
