@@ -43,7 +43,7 @@ def get_activity_stats(
             stats["pending"] += 1
             continue
 
-        done_todos = sum(1 for todo in activity.todos if todo.status in [TodoStatus.yes, TodoStatus.not_apply])
+        done_todos = sum(1 for todo in activity.todos if todo.status != TodoStatus.pending)
 
         if done_todos == 0:
             stats["pending"] += 1
@@ -110,7 +110,7 @@ def get_detailed_activity_stats(
             continue
 
         activity_total = len(activity.todos)
-        activity_done = sum(1 for todo in activity.todos if todo.status in [TodoStatus.yes, TodoStatus.not_apply])
+        activity_done = sum(1 for todo in activity.todos if todo.status != TodoStatus.pending)
         
         total_todos += activity_total
         completed_todos += activity_done
@@ -128,7 +128,7 @@ def get_detailed_activity_stats(
     prev_stats = {"done": 0, "total": len(prev_activities)}
     for activity in prev_activities:
         activity_total = len(activity.todos)
-        activity_done = sum(1 for todo in activity.todos if todo.status in [TodoStatus.yes, TodoStatus.not_apply])
+        activity_done = sum(1 for todo in activity.todos if todo.status != TodoStatus.pending)
         if activity_total > 0 and activity_done == activity_total:
             prev_stats["done"] += 1
 
@@ -241,7 +241,7 @@ def get_general_activity_stats(
              stats["missed"] += 1
         else:
             activity_total = len(activity.todos)
-            activity_done = sum(1 for todo in activity.todos if todo.status in [TodoStatus.yes, TodoStatus.not_apply])
+            activity_done = sum(1 for todo in activity.todos if todo.status != TodoStatus.pending)
             
             total_todos += activity_total
             completed_todos += activity_done
@@ -263,7 +263,7 @@ def get_general_activity_stats(
             
             is_done = False
             if activity.todos:
-                done_todos = sum(1 for todo in activity.todos if todo.status in [TodoStatus.yes, TodoStatus.not_apply])
+                done_todos = sum(1 for todo in activity.todos if todo.status != TodoStatus.pending)
                 if done_todos == len(activity.todos) and len(activity.todos) > 0:
                     is_done = True
             
@@ -283,7 +283,7 @@ def get_general_activity_stats(
     prev_stats = {"done": 0, "total": len(prev_activities)}
     for activity in prev_activities:
         activity_total = len(activity.todos)
-        activity_done = sum(1 for todo in activity.todos if todo.status in [TodoStatus.yes, TodoStatus.not_apply])
+        activity_done = sum(1 for todo in activity.todos if todo.status != TodoStatus.pending)
         if activity_total > 0 and activity_done == activity_total:
             prev_stats["done"] += 1
 
