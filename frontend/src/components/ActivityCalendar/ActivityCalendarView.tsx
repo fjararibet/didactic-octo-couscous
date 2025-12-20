@@ -115,7 +115,7 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
   };
 
   const handleActivityUpdated = async () => {
-    const updatedActivities = await activityService.getActivitiesByCreator(userId);
+    const updatedActivities = await activityService.getActivitiesByAssignee(userId);
     setActivities(updatedActivities);
     if (selectedActivity) {
       const updatedActivity = updatedActivities.find(a => a.id === selectedActivity.id);
