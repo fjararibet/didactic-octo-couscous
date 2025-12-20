@@ -26,6 +26,7 @@ const SupervisorActivityDetailModal = ({
   onUpdate,
 }: SupervisorActivityDetailModalProps) => {
   const [localActivity, setLocalActivity] = useState(activity);
+  const [isDirty, setIsDirty] = useState(false);
   const todos = localActivity.todos || [];
 
   const handleToggleTodo = async (todoId: number) => {
@@ -36,11 +37,18 @@ const SupervisorActivityDetailModal = ({
           t.id === todoId ? { ...t, is_done: updatedTodo.is_done } : t
         );
         setLocalActivity({ ...localActivity, todos: updatedTodos });
-        onUpdate();
+        setIsDirty(true);
       }
     } catch (error) {
       console.error('Error updating todo:', error);
     }
+  };
+
+  const handleClose = () => {
+    if (isDirty) {
+      onUpdate();
+    }
+    onClose();
   };
 
   const getStatusBadge = (status: Activity['status']) => {
@@ -79,7 +87,7 @@ const SupervisorActivityDetailModal = ({
     totalTodos > 0 ? (completedTodos / totalTodos) * 100 : 0;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={open => !open && handleClose()}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl">{localActivity.name}</DialogTitle>
@@ -177,7 +185,7 @@ const SupervisorActivityDetailModal = ({
           </div>
 
           <div className="flex justify-end gap-2 pt-4 border-t">
-            <Button variant="outline" onClick={onClose}>
+            <Button variant="outline" onClick={handleClose}>
 .
               Cerrar
             </Button>
