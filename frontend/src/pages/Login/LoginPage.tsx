@@ -99,6 +99,12 @@ const LoginPage = () => {
                     setEmail(e.target.value);
                     if (errors.email || errors.general) setErrors({ email: '', password: '', general: '' });
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleLogin(e);
+                    }
+                  }}
                   className={errors.email ? 'border-red-500 focus-visible:ring-red-500' : ''}
                   disabled={isLoading}
                 />
@@ -117,6 +123,12 @@ const LoginPage = () => {
                     setPassword(e.target.value);
                     if (errors.password || errors.general) setErrors({ email: '', password: '', general: '' });
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleLogin(e);
+                    }
+                  }}
                   className={errors.password ? 'border-red-500 focus-visible:ring-red-500' : ''}
                   disabled={isLoading}
                 />
@@ -127,23 +139,12 @@ const LoginPage = () => {
             </div>
           </form>
         </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button
-            variant="outline"
-            type="button"
-            onClick={() => {
-              setEmail('');
-              setPassword('');
-              setErrors({ email: '', password: '', general: '' });
-            }}
-            disabled={isLoading}
-          >
-            Cancelar
-          </Button>
+        <CardFooter className="flex justify-center">
           <Button
             type="submit"
             onClick={handleLogin}
             disabled={isLoading}
+            className="w-full"
           >
             {isLoading ? 'Ingresando...' : 'Ingresar'}
           </Button>
