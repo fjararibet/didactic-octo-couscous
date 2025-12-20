@@ -1,6 +1,5 @@
 import random
 import uuid
-from datetime import date
 from sqlmodel import Session, delete, select
 from database import engine
 from models import (
@@ -25,8 +24,6 @@ def clear_db(session: Session):
     session.exec(delete(TemplateTodoItem))
     session.exec(delete(ActivityTemplate))
     session.commit()
-
-
 
 
 ACTIVITIES_DATA = [
@@ -285,7 +282,7 @@ def populate():
     # Create 5 Preventionists
     preventionists = []
     print("Creating Preventionists...")
-    for i in range(5):
+    for i in range(1):
         uid = str(uuid.uuid4())[:8]
         username = f"prev_{uid}"
         email = f"prev_{uid}@example.com"
@@ -315,7 +312,8 @@ def populate():
 
     for prev in preventionists:
         # Each preventionist has between 5 and 20 supervisors
-        num_supervisors = random.randint(5, 20)
+        # num_supervisors = random.randint(5, 20)
+        num_supervisors = 1
 
         for j in range(num_supervisors):
             uid = str(uuid.uuid4())[:8]
@@ -339,22 +337,17 @@ def populate():
             session.add(assignment)
 
             # Create Activities for this Supervisor
-            # Randomly assign 15 to 20 activities per supervisor
-            num_activities = random.randint(15, 20)
+            # Randomly assign 2 to 5 activities per supervisor
+            num_activities = random.randint(2, 5)
 
             for _ in range(num_activities):
                 # Choose a random activity template
                 template = random.choice(activity_templates)
 
-                scheduled_date = None
-                if random.random() < 0.5:  # Approximately 50% of activities will have a date
-                    day = random.randint(1, 31)
-                    scheduled_date = date(2025, 12, day)
-
                 activity = Activity(
                     name=template.name,
                     status=Status.pending,
-                    scheduled_date=scheduled_date,
+                    scheduled_date=None,
                     assigned_to_id=supervisor.id,
                     created_by_id=prev.id,
                 )
