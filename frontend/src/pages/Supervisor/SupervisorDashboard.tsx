@@ -9,14 +9,21 @@ import { activityService } from '@/services/activityService';
 import type { Activity } from '@/types/activity';
 import SupervisorActivityDetailModal from './SupervisorActivityDetailModal';
 import { calculateActivityStatus, cn } from '@/lib/utils';
+import { isActivityMissed } from '@/types/activity';
 
 
 const getCardColorByStatus = (activity: Activity | null) => {
   if (!activity) return '!bg-white hover:!bg-gray-50';
 
   const status = calculateActivityStatus(activity);
-  console.log('Activity:', activity.name, 'Status:', status, 'Scheduled:', activity.scheduled_date);
+  const isMissed = isActivityMissed(activity, status);
 
+  // If missed, always show red regardless of status
+  if (isMissed) {
+    return '!bg-red-200 hover:!bg-red-300';
+  }
+
+  // Otherwise use the normal status colors
   switch (status) {
     case 'pending':
       return '!bg-yellow-200 hover:!bg-yellow-300';
@@ -24,8 +31,6 @@ const getCardColorByStatus = (activity: Activity | null) => {
       return '!bg-blue-200 hover:!bg-blue-300';
     case 'done':
       return '!bg-green-400 hover:!bg-green-500';
-    case 'missed':
-      return '!bg-red-200 hover:!bg-red-300';
     default:
       return '!bg-white hover:!bg-gray-50';
   }
