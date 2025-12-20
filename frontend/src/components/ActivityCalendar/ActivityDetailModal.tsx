@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Activity } from "@/types/activity";
+import type { Activity, TodoStatus } from "@/types/activity";
 import { isActivityMissed } from "@/types/activity";
 import { activityService } from "@/services/activityService";
 import {
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CheckCircle2, Circle, Plus } from "lucide-react";
+import { CheckCircle2, Circle, Plus, XCircle, Ban } from "lucide-react";
 import { activityStatusBadgeColors } from '../../styles/colors';
 import { calculateActivityStatus } from '../../lib/utils';
 
@@ -76,10 +76,23 @@ const ActivityDetailModal = ({
     }).format(date);
   };
 
-  const completedTodos = activity.todos.filter((t) => t.is_done).length;
+  const completedTodos = activity.todos.filter((t) => t.status === 'yes' || t.status === 'not_apply').length;
   const totalTodos = activity.todos.length;
   const progressPercentage =
     totalTodos > 0 ? (completedTodos / totalTodos) * 100 : 0;
+
+  const getTodoIcon = (status: TodoStatus) => {
+    switch (status) {
+      case 'yes':
+        return <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />;
+      case 'no':
+        return <XCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />;
+      case 'not_apply':
+        return <Ban className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />;
+      default:
+        return <Circle className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />;
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -161,15 +174,11 @@ const ActivityDetailModal = ({
                       key={todo.id}
                       className="flex items-start gap-2 py-1.5 px-2 rounded hover:bg-white transition-colors"
                     >
-                      {todo.is_done ? (
-                        <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
-                      ) : (
-                        <Circle className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />
-                      )}
+                      {getTodoIcon(todo.status)}
                       <span
                         className={`flex-1 text-sm ${
-                          todo.is_done
-                            ? "text-gray-500 line-through"
+                          todo.status !== 'pending'
+                            ? "text-gray-500"
                             : "text-gray-800"
                         }`}
                       >
@@ -209,6 +218,26 @@ const ActivityDetailModal = ({
                 <Plus className="w-4 h-4" />
                 <span className="hidden sm:inline ml-1">Agregar</span>
               </Button>
+            </div>
+          </div>
+
+          {/* Legend */}
+          <div className="pt-4 border-t flex flex-wrap gap-4 text-xs text-gray-500 justify-center">
+            <div className="flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3 text-green-600" />
+              <span>Completada</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <XCircle className="w-3 h-3 text-red-600" />
+              <span>No Realizada</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Ban className="w-3 h-3 text-gray-500" />
+              <span>No Aplica</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Circle className="w-3 h-3 text-gray-400" />
+              <span>Pendiente</span>
             </div>
           </div>
 

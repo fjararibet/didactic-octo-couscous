@@ -2,7 +2,7 @@ from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select
 from database import get_session
-from models import Activity, User, ActivityTemplate, TodoItem
+from models import Activity, User, ActivityTemplate, TodoItem, TodoStatus
 from schemas import (
     ActivityCreate,
     ActivityRead,
@@ -40,7 +40,7 @@ def create_activity(
         for template_todo in template.template_todos:
             todo_item = TodoItem(
                 description=template_todo.description,
-                is_done=False,
+                status=TodoStatus.pending,
                 activity=db_activity,
             )
             session.add(todo_item)

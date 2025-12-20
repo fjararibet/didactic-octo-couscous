@@ -24,9 +24,10 @@ export function calculateActivityStatus(activity: Activity): ActivityStatus {
     }
   }
 
-  // Check if activity is missed (overrides other statuses)
-  if (isActivityMissed(activity, status)) {
-    return 'missed';
+  const doneTodos = activity.todos.filter(todo => todo.status === 'yes' || todo.status === 'not_apply').length;
+
+  if (doneTodos === 0) {
+    return 'pending';
   }
 
   return status;

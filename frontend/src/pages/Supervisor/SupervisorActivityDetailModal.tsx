@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { Activity, TodoItem } from '@/types/activity';
+import type { Activity, TodoItem, TodoStatus } from '@/types/activity';
 import { isActivityMissed } from '@/types/activity';
 import { activityService } from '@/services/activityService';
 import {
@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Circle } from 'lucide-react';
+import { CheckCircle2, Circle, XCircle, Ban } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { activityStatusBadgeColors } from '../../styles/colors';
 import { calculateActivityStatus } from '../../lib/utils';
@@ -37,12 +37,18 @@ const SupervisorActivityDetailModal = ({
     setLocalActivity(activity);
   }, [activity]);
 
-  const handleToggleTodo = async (todoId: number) => {
+  const handleCycleTodoStatus = async (todoId: number, currentStatus: TodoStatus) => {
+    let nextStatus: TodoStatus = 'yes';
+    if (currentStatus === 'pending') nextStatus = 'yes';
+    else if (currentStatus === 'yes') nextStatus = 'no';
+    else if (currentStatus === 'no') nextStatus = 'not_apply';
+    else if (currentStatus === 'not_apply') nextStatus = 'pending';
+
     try {
-      const updatedTodo = await activityService.toggleTodoStatus(todoId);
+      const updatedTodo = await activityService.updateTodoStatus(todoId, nextStatus);
       if (updatedTodo) {
         const updatedTodos = todos.map(t =>
-          t.id === todoId ? { ...t, is_done: updatedTodo.is_done } : t
+          t.id === todoId ? { ...t, status: updatedTodo.status } : t
         );
         const newLocalActivity = { ...localActivity, todos: updatedTodos };
         setLocalActivity(newLocalActivity);
@@ -81,10 +87,23 @@ const SupervisorActivityDetailModal = ({
     }).format(date);
   };
 
-  const completedTodos = todos.filter(t => t.is_done).length;
+  const completedTodos = todos.filter(t => t.status === 'yes' || t.status === 'not_apply').length;
   const totalTodos = todos.length;
   const progressPercentage =
     totalTodos > 0 ? (completedTodos / totalTodos) * 100 : 0;
+
+  const getTodoIcon = (status: TodoStatus) => {
+    switch (status) {
+      case 'yes':
+        return <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />;
+      case 'no':
+        return <XCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />;
+      case 'not_apply':
+        return <Ban className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />;
+      default:
+        return <Circle className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />;
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && handleClose()}>
@@ -163,20 +182,16 @@ const SupervisorActivityDetailModal = ({
                   {todos.map((todo: TodoItem) => (
                     <button
                       key={todo.id}
-                      onClick={() => handleToggleTodo(todo.id)}
+                      onClick={() => handleCycleTodoStatus(todo.id, todo.status)}
                       className={cn(
                         'flex items-start gap-2 py-1.5 px-2 rounded hover:bg-white transition-colors w-full text-left'
                       )}
                     >
-                      {todo.is_done ? (
-                        <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
-                      ) : (
-                        <Circle className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />
-                      )}
+                      {getTodoIcon(todo.status)}
                       <span
                         className={`flex-1 text-sm ${
-                          todo.is_done
-                            ? 'text-gray-500 line-through'
+                          todo.status !== 'pending'
+                            ? 'text-gray-500'
                             : 'text-gray-800'
                         }`}
                       >
@@ -191,9 +206,28 @@ const SupervisorActivityDetailModal = ({
 
           <div className="flex justify-end gap-2 pt-4 border-t">
             <Button variant="outline" onClick={handleClose}>
-.
               Cerrar
             </Button>
+          </div>
+
+          {/* Legend */}
+          <div className="pt-2 border-t flex flex-wrap gap-4 text-xs text-gray-500 justify-center">
+            <div className="flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3 text-green-600" />
+              <span>Completada</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <XCircle className="w-3 h-3 text-red-600" />
+              <span>No Realizada</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Ban className="w-3 h-3 text-gray-500" />
+              <span>No Aplica</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Circle className="w-3 h-3 text-gray-400" />
+              <span>Pendiente</span>
+            </div>
           </div>
         </div>
       </DialogContent>

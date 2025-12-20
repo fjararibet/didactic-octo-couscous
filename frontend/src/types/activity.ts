@@ -5,10 +5,12 @@ export interface User {
   role: 'preventionist' | 'supervisor' | 'admin';
 }
 
+export type TodoStatus = 'pending' | 'yes' | 'no' | 'not_apply';
+
 export interface TodoItem {
   id: number;
   description: string;
-  is_done: boolean;
+  status: TodoStatus;
   activity_id: number;
 }
 
@@ -32,12 +34,7 @@ export interface Activity {
     email: string;
     role: 'preventionist' | 'supervisor' | 'admin';
   };
-  todos: {
-    id: number;
-    description: string;
-    is_done: boolean;
-    activity_id: number;
-  }[];
+  todos: TodoItem[];
 }
 
 export type ActivityStatus = 'pending' | 'in_progress' | 'done' | 'missed';
@@ -47,7 +44,7 @@ export const getActivityStatus = (activity: Activity): ActivityStatus => {
     return 'pending';
   }
 
-  const doneCount = activity.todos.filter((todo) => todo.is_done).length;
+  const doneCount = activity.todos.filter((todo) => todo.status === 'yes' || todo.status === 'not_apply').length;
 
   if (doneCount === 0) {
     return 'pending';
