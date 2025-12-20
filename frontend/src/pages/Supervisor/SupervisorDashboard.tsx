@@ -54,11 +54,11 @@ const SupervisorDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="mx-auto">
-        <div className="flex justify-between items-center mb-6">
+    <div className="h-screen overflow-hidden bg-gray-100 p-4">
+      <div className="mx-auto h-full">
+        <div className="flex justify-between items-center mb-2">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">Panel de Supervisor</h1>
+            <h1 className="text-2xl font-bold text-gray-800">Panel de Supervisor</h1>
             <p className="text-sm text-gray-500 mt-1">Sesión: {user?.email}</p>
           </div>
           <Button variant="outline" onClick={handleLogout}>
