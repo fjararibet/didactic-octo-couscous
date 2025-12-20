@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -46,6 +47,7 @@ interface ActivityStats {
 }
 
 export const GeneralStatsModal = ({ isOpen, onClose }: GeneralStatsModalProps) => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState<ActivityStats | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -92,6 +94,11 @@ export const GeneralStatsModal = ({ isOpen, onClose }: GeneralStatsModalProps) =
     return colors[id % colors.length];
   };
 
+  const handleRowClick = (supervisorId: number) => {
+    onClose();
+    navigate(`/preventionist/supervisor/${supervisorId}`);
+  };
+
   const chartData = stats ? Object.entries(stats.status_distribution).map(([name, value]) => ({
     name: statusTranslations[name] || name,
     value,
@@ -124,7 +131,7 @@ export const GeneralStatsModal = ({ isOpen, onClose }: GeneralStatsModalProps) =
           </div>
         ) : stats && (
           <div className="space-y-6">
-            {/* KPI Cards */}
+            {/* KPI Cards ... */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Card>
                 <CardHeader className="pb-2">
@@ -192,7 +199,7 @@ export const GeneralStatsModal = ({ isOpen, onClose }: GeneralStatsModalProps) =
                   <table className="w-full text-sm text-left text-gray-500">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                       <tr>
-                        <th scope="col" className="px-2 py-3">Supervisor</th>
+                        <th scope="col" className="px-2 py-3 text-center">Supervisor</th>
                         <th scope="col" className="px-2 py-3 text-center">Asignadas</th>
                         <th scope="col" className="px-2 py-3 text-center text-green-600">Completadas a Tiempo</th>
                         <th scope="col" className="px-2 py-3 text-center text-orange-600">Completadas Tarde</th>
@@ -206,10 +213,14 @@ export const GeneralStatsModal = ({ isOpen, onClose }: GeneralStatsModalProps) =
                           ? ((supervisor.completed / supervisor.assigned) * 100).toFixed(0) 
                           : '0';
                         return (
-                          <tr key={supervisor.id} className="bg-white border-b hover:bg-gray-50">
-                            <td className="px-2 py-4 font-medium text-gray-900 whitespace-nowrap">
+                          <tr 
+                            key={supervisor.id} 
+                            className="bg-white border-b hover:bg-blue-50 cursor-pointer transition-colors"
+                            onClick={() => handleRowClick(supervisor.id)}
+                          >
+                            <td className="px-2 py-4 flex justify-center">
                               <div 
-                                className={`w-8 h-8 rounded-full ${getAvatarColor(supervisor.id)} flex items-center justify-center shadow-sm cursor-help`}
+                                className={`w-8 h-8 rounded-full ${getAvatarColor(supervisor.id)} flex items-center justify-center shadow-sm`}
                                 title={supervisor.name}
                               >
                                 <span className="text-xs font-bold text-white">
