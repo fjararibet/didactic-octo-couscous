@@ -11,6 +11,13 @@ class Role(str, Enum):
     admin = "admin"
 
 
+class TodoStatus(str, Enum):
+    pending = "pending"
+    yes = "yes"
+    no = "no"
+    not_apply = "not_apply"
+
+
 
 
 class User(SQLModel, table=True):
@@ -80,7 +87,7 @@ class Activity(SQLModel, table=True):
 class TodoItem(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     description: str
-    is_done: bool = Field(default=False)
+    status: TodoStatus = Field(default=TodoStatus.pending, sa_column=Column(SAEnum(TodoStatus)))
 
     activity_id: Optional[int] = Field(default=None, foreign_key="activity.id")
     activity: Optional[Activity] = Relationship(back_populates="todos")
