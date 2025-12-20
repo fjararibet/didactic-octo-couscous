@@ -67,10 +67,10 @@ const SupervisorDashboard = () => {
         </div>
 
         <Card className="w-full">
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <CardContent className="grid grid-cols-2 grid-rows-2 gap-6">
             <div className="flex flex-col space-y-4">
               <Card
-                className="w-full cursor-pointer hover:bg-gray-50"
+                className="w-full cursor-pointer hover:bg-gray-50 col-start-1 col-end-2"
                 onClick={() => nextActivity && handleOpenModal(nextActivity)}
               >
                 <CardHeader>

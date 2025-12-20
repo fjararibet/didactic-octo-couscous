@@ -70,7 +70,7 @@ const SupervisorCalendarView = () => {
 
   return (
     <>
-      <Card className="p-4 mt-6">
+      <Card className="p-4">
         <h2 className="text-xl font-bold text-gray-800 mb-4">Calendario de Actividades</h2>
         {loading ? (
           <div className="text-center py-8 text-gray-500">Cargando actividades...</div>
