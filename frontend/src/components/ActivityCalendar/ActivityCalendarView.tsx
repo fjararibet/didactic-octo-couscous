@@ -20,6 +20,7 @@ import '../../styles/calendar.css';
 import { SupervisorStatsModal } from '../SupervisorStatsModal';
 import { activityStatusColors } from '../../styles/colors';
 import { calculateActivityStatus } from '../../lib/utils';
+import { isActivityMissed } from '@/types/activity';
 
 interface ActivityCalendarViewProps {
   userId: number;
@@ -83,6 +84,11 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
 
   const events = activities.map(activity => {
     const status = calculateActivityStatus(activity);
+    const isMissed = isActivityMissed(activity, status);
+
+    // Use "missed" color if activity is missed, otherwise use status color
+    const colorClass = isMissed ? activityStatusColors.missed : activityStatusColors[status];
+
     return {
       id: String(activity.id),
       title: `${activity.name} ${
@@ -94,7 +100,7 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
       }`,
       start: activity.scheduled_date!,
       allDay: true,
-      classNames: [activityStatusColors[status]],
+      classNames: [colorClass],
       extendedProps: { activity: { ...activity, status } },
     };
   });
