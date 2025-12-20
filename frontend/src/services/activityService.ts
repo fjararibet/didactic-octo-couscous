@@ -1,4 +1,4 @@
-import type { Activity, CreateActivityDto, CreateTodoDto, TodoItem, UpdateActivityDto } from '@/types/activity';
+import type { Activity, CreateActivityDto, CreateTodoDto, TodoItem, UpdateActivityDto, ActivityWithSupervisors } from '@/types/activity';
 import { authService } from './authService';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -159,6 +159,17 @@ export const activityService = {
 
     if (!response.ok) {
       throw new Error('Failed to update todo');
+    }
+
+    return await response.json();
+  },
+
+  // Get activities grouped by name with supervisors
+  async getActivitiesGroupedByName(creatorId: number): Promise<ActivityWithSupervisors[]> {
+    const response = await authService.fetchWithAuth(`${API_URL}/activities/grouped-by-name/${creatorId}`);
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch grouped activities');
     }
 
     return await response.json();

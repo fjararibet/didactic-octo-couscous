@@ -7,6 +7,8 @@ from schemas import (
     ActivityCreate,
     ActivityRead,
     ActivityUpdate,
+    ActivityWithSupervisors,
+    UserRead,
 )
 from routers.auth import get_current_user
 
@@ -119,3 +121,67 @@ def delete_activity(*, session: Session = Depends(get_session), activity_id: int
         raise HTTPException(status_code=404, detail="Activity not found")
     session.delete(activity)
     session.commit()
+
+
+@router.get("/grouped-by-name/{creator_id}", response_model=List[ActivityWithSupervisors])
+def get_activities_grouped_by_name(
+    *,
+    session: Session = Depends(get_session),
+    creator_id: int,
+):
+    """
+    Get activities grouped by name for a specific creator (preventionist).
+    Returns a list where each item contains:
+    - activity_name: The name of the activity
+    - activity_id: One of the activity IDs (for reference)
+    - scheduled_dates: List of all scheduled dates for this activity
+    - supervisor_count: Number of supervisors assigned to this activity
+    - supervisors: List of unique supervisors assigned to this activity
+    """
+    # Get all activities created by this user
+    activities = session.exec(
+        select(Activity).where(Activity.created_by_id == creator_id)
+    ).all()
+
+    # Group activities by name
+    activities_by_name: dict[str, list[Activity]] = {}
+    for activity in activities:
+        if activity.name not in activities_by_name:
+            activities_by_name[activity.name] = []
+        activities_by_name[activity.name].append(activity)
+
+    # Build response
+    result: list[ActivityWithSupervisors] = []
+    for activity_name, activity_list in activities_by_name.items():
+        # Get unique supervisors
+        supervisor_ids: set[int] = set()
+        supervisors_list: list[UserRead] = []
+        scheduled_dates: list = []
+
+        for activity in activity_list:
+            if activity.scheduled_date:
+                scheduled_dates.append(activity.scheduled_date)
+
+            if activity.assigned_to_id and activity.assigned_to_id not in supervisor_ids:
+                supervisor_ids.add(activity.assigned_to_id)
+                if activity.assigned_to:
+                    supervisors_list.append(
+                        UserRead(
+                            id=activity.assigned_to.id,
+                            username=activity.assigned_to.username,
+                            email=activity.assigned_to.email,
+                            role=activity.assigned_to.role,
+                        )
+                    )
+
+        result.append(
+            ActivityWithSupervisors(
+                activity_name=activity_name,
+                activity_id=activity_list[0].id if activity_list else None,
+                scheduled_dates=sorted(scheduled_dates),
+                supervisor_count=len(supervisors_list),
+                supervisors=supervisors_list,
+            )
+        )
+
+    return result

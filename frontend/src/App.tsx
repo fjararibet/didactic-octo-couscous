@@ -3,6 +3,7 @@ import LoginPage from './pages/Login/LoginPage'
 import SupervisorDashboard from './pages/Supervisor/SupervisorDashboard'
 import PreventionistDashboard from './pages/Preventionist/PreventionistDashboard'
 import SupervisorActivitiesPage from './pages/Preventionist/SupervisorActivitiesPage'
+import ActivitiesView from './pages/Preventionist/ActivitiesView'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -35,6 +36,15 @@ function App() {
         element={
           <ProtectedRoute allowedRole="preventionist">
             <SupervisorActivitiesPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/preventionist/activities"
+        element={
+          <ProtectedRoute allowedRole="preventionist">
+            <ActivitiesView />
           </ProtectedRoute>
         }
       />

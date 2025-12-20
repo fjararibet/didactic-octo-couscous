@@ -68,9 +68,14 @@ const PreventionistDashboard = () => {
             <h1 className="text-3xl font-bold text-gray-800">Panel de Prevencionista</h1>
             <p className="text-sm text-gray-500 mt-1">Sesión: {user?.email}</p>
           </div>
-          <Button variant="outline" onClick={handleLogout}>
-            Cerrar Sesión
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => navigate('/preventionist/activities')}>
+              Ver Actividades
+            </Button>
+            <Button variant="outline" onClick={handleLogout}>
+              Cerrar Sesión
+            </Button>
+          </div>
         </div>
 
         <h2 className="text-xl font-semibold mb-4 text-gray-700">Supervisores a cargo</h2>

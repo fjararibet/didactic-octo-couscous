@@ -124,3 +124,12 @@ class Token(SQLModel):
 
 class TokenData(SQLModel):
     username: Optional[str] = None
+
+
+class ActivityWithSupervisors(SQLModel):
+    """Activity grouped with list of supervisors assigned to it"""
+    activity_name: str
+    activity_id: int | None = None
+    scheduled_dates: list[datetime]
+    supervisor_count: int
+    supervisors: list[UserRead]

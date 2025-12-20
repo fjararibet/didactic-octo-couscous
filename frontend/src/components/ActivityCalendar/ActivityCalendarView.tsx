@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import ActivityDetailModal from './ActivityDetailModal';
 import NewActivityModal from './NewActivityModal';
+import TemplateDetailModal from './TemplateDetailModal';
 import esLocale from '@fullcalendar/core/locales/es';
 import { Calendar } from 'lucide-react';
 import '../../styles/calendar.css';
@@ -27,8 +28,10 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [activityTemplates, setActivityTemplates] = useState<ActivityTemplate[]>([]);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<ActivityTemplate | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isNewActivityModalOpen, setIsNewActivityModalOpen] = useState(false);
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [supervisorName, setSupervisorName] = useState<string>('');
   const draggableContainerRef = useRef<HTMLDivElement>(null);
@@ -143,14 +146,15 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        <Card className="p-4 lg:col-span-1">
+        <Card className="p-4 lg:col-span-1 flex flex-col">
           <div className="flex items-center gap-2 mb-4">
             <Calendar className="h-5 w-5 text-gray-600" />
             <h3 className="font-semibold text-gray-700">Plantillas de Actividad</h3>
             <span className="text-sm text-gray-500">({activityTemplates.length})</span>
           </div>
           {activityTemplates.length > 0 ? (
-            <div ref={draggableContainerRef} className="space-y-2">
+            <div className="relative overflow-y-auto pr-2 max-h-[calc(100vh-250px)]" style={{ scrollbarWidth: 'thin' }}>
+              <div ref={draggableContainerRef} className="space-y-2">
               {activityTemplates.map(template => (
                                   <div
                                     key={template.id}
@@ -163,6 +167,13 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
                                       border: `2px solid #e5e7eb`,
                                       borderLeftWidth: '6px',
                                       transition: 'box-shadow 0.2s ease, transform 0.2s ease',
+                                    }}
+                                    onClick={(e) => {
+                                      // Only open modal if not dragging
+                                      if (e.currentTarget === e.target || e.currentTarget.contains(e.target as Node)) {
+                                        setSelectedTemplate(template);
+                                        setIsTemplateModalOpen(true);
+                                      }
                                     }}
                                   >
                                     <div className="flex items-start justify-between gap-2">
@@ -177,26 +188,8 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
                                         style={{ backgroundColor: '#6b7280' }} // gray
                                       />
                                     </div>
-
-                                    {/* Tooltip con lista de tareas */}
-                                    {template.template_todos.length > 0 && (
-                                      <div className="absolute bottom-full mb-2 left-0 right-0 z-9999 hidden group-hover:block bg-gray-900 text-white text-xs rounded-lg shadow-xl p-3 max-w-xs">
-                                        <div className="font-semibold mb-2 text-gray-100">Tareas de la plantilla:</div>
-                                        <ul className="space-y-1.5 max-h-48 overflow-y-auto">
-                                          {template.template_todos.map((todo, idx) => (
-                                            <li key={todo.id} className="flex items-start gap-2">
-                                              <span className="text-gray-400 shrink-0">{idx + 1}.</span>
-                                              <span className="text-gray-200">{todo.description}</span>
-                                            </li>
-                                          ))}
-                                        </ul>
-                                        {/* Flecha del tooltip */}
-                                        <div
-                                          className="absolute top-full left-4 border-8 border-transparent border-t-gray-900"
-                                        />
-                                      </div>
-                                    )}
                                   </div>              ))}
+              </div>
             </div>
           ) : (
             <div className="text-center py-8 text-gray-500">
@@ -273,6 +266,15 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
         isOpen={isNewActivityModalOpen}
         onClose={() => setIsNewActivityModalOpen(false)}
         onActivityTemplateCreated={handleActivityTemplateCreated}
+      />
+
+      <TemplateDetailModal
+        template={selectedTemplate}
+        isOpen={isTemplateModalOpen}
+        onClose={() => {
+          setIsTemplateModalOpen(false);
+          setSelectedTemplate(null);
+        }}
       />
     </div>
   );

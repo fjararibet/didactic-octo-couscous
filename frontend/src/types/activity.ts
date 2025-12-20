@@ -71,3 +71,11 @@ export interface CreateTodoDto {
   description: string;
   activity_id: number;
 }
+
+export interface ActivityWithSupervisors {
+  activity_name: string;
+  activity_id: number | null;
+  scheduled_dates: string[];
+  supervisor_count: number;
+  supervisors: User[];
+}
