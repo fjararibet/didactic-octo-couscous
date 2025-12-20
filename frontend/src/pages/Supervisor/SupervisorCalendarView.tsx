@@ -44,12 +44,16 @@ const SupervisorCalendarView = () => {
     setSelectedActivity(null);
   };
 
-  const handleUpdate = () => {
-    loadActivities();
+  const handleActivityUpdate = (updatedActivity: Activity) => {
+    setActivities(prevActivities =>
+      prevActivities.map(activity =>
+        activity.id === updatedActivity.id ? updatedActivity : activity
+      )
+    );
   };
 
   const scheduledActivities = activities.filter(activity => activity.scheduled_date !== null);
-
+  
   const events = scheduledActivities.map(activity => ({
     id: String(activity.id),
     title: activity.name,
@@ -88,7 +92,7 @@ const SupervisorCalendarView = () => {
           activity={selectedActivity}
           isOpen={!!selectedActivity}
           onClose={handleCloseModal}
-          onUpdate={handleUpdate}
+          onActivityUpdate={handleActivityUpdate}
         />
       )}
     </>

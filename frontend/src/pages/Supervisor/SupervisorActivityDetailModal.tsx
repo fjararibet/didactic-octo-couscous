@@ -16,14 +16,14 @@ interface SupervisorActivityDetailModalProps {
   activity: Activity;
   isOpen: boolean;
   onClose: () => void;
-  onUpdate: () => void;
+  onActivityUpdate: (updatedActivity: Activity) => void;
 }
 
 const SupervisorActivityDetailModal = ({
   activity,
   isOpen,
   onClose,
-  onUpdate,
+  onActivityUpdate,
 }: SupervisorActivityDetailModalProps) => {
   const [localActivity, setLocalActivity] = useState(activity);
   const [isDirty, setIsDirty] = useState(false);
@@ -46,7 +46,7 @@ const SupervisorActivityDetailModal = ({
 
   const handleClose = () => {
     if (isDirty) {
-      onUpdate();
+      onActivityUpdate(localActivity);
     }
     onClose();
   };
