@@ -1,5 +1,6 @@
 import random
 import uuid
+from datetime import datetime, timedelta
 from sqlmodel import Session, delete, select
 from database import engine
 from models import (
@@ -375,10 +376,16 @@ def populate():
                 # Choose a random activity template
                 template = random.choice(activity_templates)
 
+                # Generate a random date in December 2025
+                year = 2025
+                month = 12
+                day = random.randint(1, 31)  # December has 31 days
+                scheduled_date = datetime(year, month, day)
+
                 activity = Activity(
                     name=template.name,
                     status=Status.pending,
-                    scheduled_date=None,
+                    scheduled_date=scheduled_date,
                     assigned_to_id=supervisor.id,
                     created_by_id=prev.id,
                 )
