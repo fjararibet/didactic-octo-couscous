@@ -3,6 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
 import SupervisorCalendarView from './SupervisorCalendarView';
+import { StatusesPieChart } from './StatusesPieChart';
 
 const SupervisorDashboard = () => {
   const navigate = useNavigate();
@@ -12,6 +13,10 @@ const SupervisorDashboard = () => {
     logout();
     navigate('/login');
   };
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
@@ -36,6 +41,7 @@ const SupervisorDashboard = () => {
               <h3 className="font-semibold mb-2">Resumen de Actividad</h3>
               <p className="text-sm text-gray-500">Aquí se mostrarán métricas y alertas relevantes para el rol de supervisión.</p>
             </div>
+            <StatusesPieChart userId={user.id} />
             <SupervisorCalendarView />
           </CardContent>
         </Card>

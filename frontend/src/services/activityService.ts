@@ -4,6 +4,17 @@ import { authService } from './authService';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export const activityService = {
+  // Get activity status stats for a user
+  async getActivityStatusStats(userId: number): Promise<{ [key: string]: number }> {
+    const response = await authService.fetchWithAuth(`${API_URL}/activity/statuses_stats/${userId}`);
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch activity status stats');
+    }
+
+    return await response.json();
+  },
+
   // Get all activities for a user (by creator)
   async getActivitiesByCreator(userId: number): Promise<Activity[]> {
     const response = await authService.fetchWithAuth(`${API_URL}/activities/by-creator/${userId}`);
