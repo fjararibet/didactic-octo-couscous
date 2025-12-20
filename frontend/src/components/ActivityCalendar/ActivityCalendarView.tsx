@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -30,7 +30,7 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
   const draggableInstanceRef = useRef<Draggable | null>(null);
 
   // Load activities
-  const loadActivities = async () => {
+  const loadActivities = useCallback(async () => {
     setLoading(true);
     try {
       const data = await activityService.getActivitiesByCreator(userId);
@@ -40,11 +40,11 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
     loadActivities();
-  }, [userId]);
+  }, [loadActivities]);
 
   // Initialize draggable for unscheduled activities
   useEffect(() => {

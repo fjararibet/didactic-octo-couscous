@@ -65,7 +65,7 @@ export const activityService = {
 
   // Update an activity
   async updateActivity(id: number, data: UpdateActivityDto): Promise<Activity | null> {
-    const updatePayload: Record<string, any> = {};
+    const updatePayload: Partial<UpdateActivityDto> & { finished_date?: string | null } = {};
 
     if (data.name !== undefined) updatePayload.name = data.name;
     if (data.status !== undefined) {

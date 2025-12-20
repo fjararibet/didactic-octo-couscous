@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 import { authService } from '@/services/authService';
 
@@ -21,40 +22,33 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Check if user is already logged in on mount
-  useEffect(() => {
+  const [user, setUser] = useState<User | null>(() => {
     const token = authService.getToken();
     const role = authService.getRole();
     const email = localStorage.getItem('user_email');
     const id = localStorage.getItem('user_id');
 
     if (token && role && email) {
-      setUser({
+      return {
         email,
         role: role as UserRole,
         id: id ? parseInt(id) : undefined,
-      });
+      };
     }
-    setIsLoading(false);
-  }, []);
+    return null;
+  });
+  const [isLoading] = useState(false);
 
   const login = async (email: string, password: string) => {
-    try {
-      const response = await authService.login(email, password);
+    const response = await authService.login(email, password);
 
-      // Store user info
-      localStorage.setItem('user_email', email);
+    // Store user info
+    localStorage.setItem('user_email', email);
 
-      setUser({
-        email,
-        role: response.role as UserRole,
-      });
-    } catch (error) {
-      throw error;
-    }
+    setUser({
+      email,
+      role: response.role as UserRole,
+    });
   };
 
   const logout = () => {
