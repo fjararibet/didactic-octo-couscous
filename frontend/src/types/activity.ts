@@ -22,6 +22,7 @@ export interface Activity {
   created_by_id: number;
   assigned_to_id: number;
   activity_template_id: number | null;
+  in_review: boolean;
   created_by: {
     id: number;
     username: string;
@@ -81,6 +82,7 @@ export interface UpdateActivityDto {
   name?: string;
   scheduled_date?: string | null;
   assigned_to_id?: number;
+  in_review?: boolean;
 }
 
 export interface CreateTodoDto {
