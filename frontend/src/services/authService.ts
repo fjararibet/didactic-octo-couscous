@@ -27,7 +27,7 @@ class AuthService {
     formData.append('username', email); // Backend accepts email as username
     formData.append('password', password);
 
-    const response = await fetch(`${API_URL}/token`, {
+    const response = await fetch(`${API_URL}/auth/token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -54,7 +54,7 @@ class AuthService {
   }
 
   async fetchUserInfo(): Promise<UserInfo> {
-    const response = await this.fetchWithAuth(`${API_URL}/me`);
+    const response = await this.fetchWithAuth(`${API_URL}/auth/me`);
 
     if (!response.ok) {
       throw new Error('Failed to fetch user info');

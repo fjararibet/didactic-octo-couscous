@@ -23,11 +23,17 @@ def get_my_supervisors(
     if current_user.role != Role.preventionist:
         raise HTTPException(status_code=403, detail="Only preventionists can access this endpoint")
 
+    from sqlmodel import col
+
     statement = (
         select(User)
-        .join(SupervisorAssignment)
+        .join(
+            SupervisorAssignment,
+            col(User.id) == SupervisorAssignment.supervisor_id,
+        )
         .where(SupervisorAssignment.preventionist_id == current_user.id)
     )
+
     supervisors = session.exec(statement).all()
     return supervisors
 
