@@ -18,8 +18,6 @@ const getCardColorByStatus = (activity: Activity | null) => {
   const status = calculateActivityStatus(activity);
   const isMissed = isActivityMissed(activity, status);
 
-  console.log('Activity:', activity.name, 'Status:', status, 'Missed:', isMissed, 'Scheduled:', activity.scheduled_date);
-
   // If missed, always show red regardless of status
   if (isMissed) {
     return '!bg-red-200 hover:!bg-red-300';
