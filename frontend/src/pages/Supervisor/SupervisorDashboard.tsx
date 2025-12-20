@@ -73,7 +73,7 @@ const SupervisorDashboard = () => {
           <CardContent className="grid grid-cols-2 grid-rows-2 gap-6">
             <div className="flex flex-col space-y-4">
               <Card
-                className="w-full cursor-pointer hover:bg-gray-50 col-start-1 col-end-2"
+                className={`w-full cursor-pointer col-start-1 col-end-2 ${nextActivity && calculateActivityStatus(nextActivity) === 'done' ? 'bg-green-400 hover:bg-green-500' : 'hover:bg-gray-50'}`}
                 onClick={() => nextActivity && handleOpenModal(nextActivity)}
               >
                 <CardHeader>
@@ -87,6 +87,11 @@ const SupervisorDashboard = () => {
                       <p className="text-lg font-semibold">{nextActivity.name}</p>
                       <p className="text-sm text-gray-600">Fecha: {new Date(nextActivity.scheduled_date!).toLocaleDateString()}</p>
                       <p className="text-sm text-gray-600">Asignado por: {nextActivity.created_by.username}</p>
+                      {calculateActivityStatus(nextActivity) === 'done' && (
+                        <Button onClick={fetchNextActivity} className="mt-4">
+                          Siguiente Tarea
+                        </Button>
+                      )}
                     </div>
                   ) : (
                     <p>No hay actividades programadas próximamente.</p>
