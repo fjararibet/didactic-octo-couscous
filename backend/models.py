@@ -80,6 +80,7 @@ class Activity(SQLModel, table=True):
         back_populates="activities_assigned",
         sa_relationship_kwargs={"foreign_keys": "[Activity.assigned_to_id]"},
     )
+    in_review: bool = Field(default=False)
 
     todos: List["TodoItem"] = Relationship(back_populates="activity")
 

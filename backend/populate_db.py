@@ -382,11 +382,15 @@ def populate():
                 day = random.randint(1, 31)  # December has 31 days
                 scheduled_date = datetime(year, month, day)
 
+                # Decide if activity is completed (in_review) or not
+                is_completed = random.choice([True, False])
+
                 activity = Activity(
                     name=template.name,
                     scheduled_date=scheduled_date,
                     assigned_to_id=supervisor.id,
                     created_by_id=prev.id,
+                    in_review=is_completed,
                 )
                 session.add(activity)
                 session.commit()
@@ -394,9 +398,10 @@ def populate():
 
                 # Create Todos for this Activity from the template
                 for todo_template in template.template_todos:
+                    status = TodoStatus.yes if is_completed else TodoStatus.pending
                     todo = TodoItem(
                         description=todo_template.description,
-                        status=TodoStatus.pending,
+                        status=status,
                         activity_id=activity.id,
                     )
                     session.add(todo)

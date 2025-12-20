@@ -39,6 +39,7 @@ class ActivityBase(SQLModel):
     scheduled_date: Optional[datetime] = None
     finished_date: Optional[datetime] = None
     assigned_to_id: int
+    in_review: bool = False
 
 # Properties to receive on item creation
 class ActivityCreate(ActivityBase):
@@ -50,6 +51,7 @@ class ActivityUpdate(SQLModel):
     scheduled_date: Optional[datetime] = None
     finished_date: Optional[datetime] = None
     assigned_to_id: Optional[int] = None
+    in_review: bool = False
 
 class ActivityRead(ActivityBase):
     id: int

@@ -110,6 +110,26 @@ def update_activity(
         raise HTTPException(status_code=404, detail="Activity not found")
 
     activity_data = activity_update.model_dump(exclude_unset=True)
+    
+    # Check if setting in_review=True, ensure all todos are completed
+    if activity_data.get("in_review"):
+        # We need to check the current todos status
+        # Since db_activity.todos might not be fully loaded or updated in this session if we rely on lazy loading without refresh?
+        # But we fetched db_activity with session.get, so relationships might be lazy.
+        # Let's verify via a query to be safe and efficient.
+        pending_todos = session.exec(
+            select(TodoItem).where(
+                TodoItem.activity_id == activity_id,
+                TodoItem.status == TodoStatus.pending
+            )
+        ).all()
+        
+        if pending_todos:
+             raise HTTPException(
+                status_code=400, 
+                detail="Cannot set activity to in_review while there are pending todos."
+            )
+
     for key, value in activity_data.items():
         setattr(db_activity, key, value)
 
