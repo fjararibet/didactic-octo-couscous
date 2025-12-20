@@ -40,7 +40,7 @@ export interface Activity {
   }[];
 }
 
-export type ActivityStatus = 'pending' | 'in_progress' | 'done';
+export type ActivityStatus = 'pending' | 'in_progress' | 'done' | 'missed';
 
 export const getActivityStatus = (activity: Activity): ActivityStatus => {
   if (!activity.todos || activity.todos.length === 0) {
@@ -103,6 +103,11 @@ export const isActivityMissed = (
   activity: Activity,
   status: ActivityStatus
 ): boolean => {
+  // Only mark as missed if not already done
+  if (status === "done") {
+    return false;
+  }
+
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Normalize today to start of day for comparison
 
@@ -111,18 +116,8 @@ export const isActivityMissed = (
     scheduledDate.setHours(0, 0, 0, 0); // Normalize scheduled_date to start of day
   }
 
-  const finishedDate = activity.finished_date ? new Date(activity.finished_date) : null;
-  if (finishedDate) {
-    finishedDate.setHours(0, 0, 0, 0); // Normalize finished_date to start of day
-  }
-
   // An activity is missed if its status is not "done" and the scheduled date is in the past.
-  if (status !== "done" && scheduledDate && scheduledDate < today) {
-    return true;
-  }
-
-  // An activity is also considered missed if the finished date is not the same day as the scheduled date.
-  if (scheduledDate && finishedDate && scheduledDate.getTime() !== finishedDate.getTime()) {
+  if (scheduledDate && scheduledDate < today) {
     return true;
   }
 

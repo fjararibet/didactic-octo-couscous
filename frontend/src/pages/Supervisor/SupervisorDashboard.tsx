@@ -12,18 +12,22 @@ import { calculateActivityStatus, cn } from '@/lib/utils';
 
 
 const getCardColorByStatus = (activity: Activity | null) => {
-  if (!activity) return 'hover:bg-gray-50';
+  if (!activity) return '!bg-white hover:!bg-gray-50';
 
   const status = calculateActivityStatus(activity);
+  console.log('Activity:', activity.name, 'Status:', status, 'Scheduled:', activity.scheduled_date);
+
   switch (status) {
     case 'pending':
-      return 'bg-yellow-200 hover:bg-yellow-300';
+      return '!bg-yellow-200 hover:!bg-yellow-300';
     case 'in_progress':
-      return 'bg-blue-200 hover:bg-blue-300';
+      return '!bg-blue-200 hover:!bg-blue-300';
     case 'done':
-      return 'bg-green-400 hover:bg-green-500';
+      return '!bg-green-400 hover:!bg-green-500';
+    case 'missed':
+      return '!bg-red-200 hover:!bg-red-300';
     default:
-      return 'hover:bg-gray-50';
+      return '!bg-white hover:!bg-gray-50';
   }
 };
 
