@@ -1,4 +1,4 @@
-import type { Activity, CreateActivityDto, CreateTodoDto, TodoItem } from '@/types/activity';
+import type { Activity, CreateActivityDto, CreateTodoDto, TodoItem, UpdateActivityDto } from '@/types/activity';
 
 // Mock data storage
 let activities: Activity[] = [
@@ -56,10 +56,36 @@ let activities: Activity[] = [
       { id: 10, description: 'Revisar guantes de seguridad', is_done: false, activity_id: 4 },
     ],
   },
+  {
+    id: 5,
+    name: 'Simulacro de Evacuación',
+    status: 'pending',
+    scheduled_date: null,
+    finished_date: null,
+    created_by_id: 1,
+    assigned_to_id: null,
+    todos: [
+      { id: 11, description: 'Coordinar con brigada', is_done: false, activity_id: 5 },
+      { id: 12, description: 'Preparar cronómetros', is_done: false, activity_id: 5 },
+    ],
+  },
+  {
+    id: 6,
+    name: 'Mantenimiento de Botiquines',
+    status: 'pending',
+    scheduled_date: null,
+    finished_date: null,
+    created_by_id: 1,
+    assigned_to_id: null,
+    todos: [
+      { id: 13, description: 'Revisar fecha de medicamentos', is_done: false, activity_id: 6 },
+      { id: 14, description: 'Reponer materiales faltantes', is_done: false, activity_id: 6 },
+    ],
+  },
 ];
 
-let nextActivityId = 5;
-let nextTodoId = 11;
+let nextActivityId = 7;
+let nextTodoId = 15;
 
 // Simulate network delay
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -84,7 +110,7 @@ export const activityService = {
       id: nextActivityId++,
       name: data.name,
       status: 'pending',
-      scheduled_date: data.scheduled_date,
+      scheduled_date: data.scheduled_date ?? null,
       finished_date: null,
       created_by_id: creatorId,
       assigned_to_id: data.assigned_to_id || null,
@@ -92,6 +118,27 @@ export const activityService = {
     };
     activities.push(newActivity);
     return newActivity;
+  },
+
+  // Update an activity
+  async updateActivity(id: number, data: UpdateActivityDto): Promise<Activity | null> {
+    await delay(300);
+    const activity = activities.find(a => a.id === id);
+    if (!activity) {
+      return null;
+    }
+
+    if (data.name !== undefined) activity.name = data.name;
+    if (data.status !== undefined) {
+      activity.status = data.status;
+      if (data.status === 'done' && !activity.finished_date) {
+        activity.finished_date = new Date().toISOString();
+      }
+    }
+    if (data.scheduled_date !== undefined) activity.scheduled_date = data.scheduled_date ?? null;
+    if (data.assigned_to_id !== undefined) activity.assigned_to_id = data.assigned_to_id;
+
+    return activity;
   },
 
   // Update activity status

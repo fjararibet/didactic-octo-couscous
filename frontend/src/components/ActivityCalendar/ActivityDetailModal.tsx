@@ -68,11 +68,11 @@ const ActivityDetailModal = ({
     );
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'Sin programar';
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('es-ES', {
       dateStyle: 'full',
-      timeStyle: 'short',
     }).format(date);
   };
 
@@ -98,10 +98,12 @@ const ActivityDetailModal = ({
               {getStatusBadge(activity.status)}
             </div>
 
-            <div>
-              <span className="text-sm font-medium text-gray-600">Fecha programada: </span>
-              <span className="text-sm text-gray-800">{formatDate(activity.scheduled_date)}</span>
-            </div>
+            {activity.scheduled_date && (
+              <div>
+                <span className="text-sm font-medium text-gray-600">Fecha programada: </span>
+                <span className="text-sm text-gray-800">{formatDate(activity.scheduled_date)}</span>
+              </div>
+            )}
 
             {activity.finished_date && (
               <div>

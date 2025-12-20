@@ -1,14 +1,16 @@
-/* FullCalendar Core Styles - Base styles for FullCalendar v6 */
-/* Note: FullCalendar v6 does not ship with CSS, so we provide minimal styling */
+/* FullCalendar Styles - Matching shadcn/ui Design System */
 
 .fc {
-  /* Base calendar container */
   max-width: 100%;
-  font-size: 1em;
+  font-family: inherit;
+  font-size: 0.875rem;
 }
 
+/* Toolbar */
 .fc-header-toolbar {
-  margin-bottom: 1.5em;
+  margin-bottom: 1.5rem;
+  padding: 0;
+  gap: 0.5rem;
 }
 
 .fc-toolbar-chunk {
@@ -17,29 +19,212 @@
   gap: 0.5rem;
 }
 
-.fc-button {
-  padding: 0.5em 1em;
-  font-size: 0.875em;
-  border: 1px solid;
-  border-radius: 0.25rem;
+/* Title */
+.fc .fc-toolbar-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  letter-spacing: -0.025em;
+}
+
+/* Buttons - shadcn/ui style */
+.fc .fc-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  font-weight: 500;
+  height: 2.25rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  transition: all 0.15s ease-in-out;
+  border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.2s;
+  outline: none;
+}
+
+.fc .fc-button:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.fc .fc-button-primary {
+  background-color: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
+.fc .fc-button-primary:hover:not(:disabled) {
+  background-color: #1e293b;
+  border-color: #1e293b;
+}
+
+.fc .fc-button-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fc .fc-button-primary.fc-button-active {
+  background-color: #334155;
+  border-color: #334155;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 }
 
 .fc-direction-ltr .fc-toolbar > * > :not(:first-child) {
-  margin-left: 0.5em;
+  margin-left: 0;
 }
 
-.fc-daygrid-day-number {
+/* Grid & Borders */
+.fc-theme-standard .fc-scrollgrid {
+  border-color: #e5e7eb;
+  border-radius: 0.375rem;
+  overflow: hidden;
+}
+
+.fc-theme-standard td,
+.fc-theme-standard th {
+  border-color: #e5e7eb;
+}
+
+/* Column Headers */
+.fc .fc-col-header-cell {
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.75rem 0.5rem;
+  background-color: #f9fafb;
+  color: #6b7280;
+}
+
+.fc .fc-col-header-cell-cushion {
   padding: 0.25rem;
+  color: #6b7280;
+}
+
+/* Day Cells */
+.fc .fc-daygrid-day {
+  transition: background-color 0.15s ease-in-out;
+  background-color: #ffffff;
+}
+
+.fc .fc-daygrid-day:hover {
+  background-color: #f3f4f6;
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+  background-color: #fef3c7 !important;
+}
+
+.fc .fc-daygrid-day-number {
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1f2937;
   text-align: right;
 }
 
-.fc-col-header-cell {
+.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+  color: #d97706;
   font-weight: 600;
-  padding: 0.5rem;
 }
 
+/* Other Month Days */
+.fc .fc-day-other {
+  background-color: #fafafa;
+}
+
+.fc .fc-day-other .fc-daygrid-day-number {
+  color: #9ca3af;
+}
+
+/* Events */
+.fc-event {
+  cursor: pointer;
+  border: none !important;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.08);
+  transition: all 0.15s ease-in-out;
+  margin: 2px;
+  padding: 4px 8px;
+  border-radius: 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.fc-event:hover {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.15), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  transform: translateY(-1px);
+  filter: brightness(0.92);
+}
+
+.fc-event .fc-event-title {
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.fc-daygrid-event-harness {
+  margin-top: 2px;
+}
+
+.fc-h-event {
+  display: block;
+  border: none;
+}
+
+/* Time Grid */
+.fc .fc-timegrid-slot {
+  height: 3rem;
+  border-color: #e5e7eb;
+}
+
+.fc .fc-timegrid-slot-label {
+  border-bottom: 0;
+  font-size: 0.75rem;
+  color: #6b7280;
+  padding: 0 0.5rem;
+}
+
+.fc .fc-timegrid-axis {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.fc .fc-timegrid-slot-label-cushion {
+  padding: 0.25rem;
+}
+
+/* Now Indicator */
+.fc .fc-timegrid-now-indicator-line {
+  border-color: #ef4444;
+  border-width: 2px;
+}
+
+.fc .fc-timegrid-now-indicator-arrow {
+  border-color: #ef4444;
+}
+
+/* List View */
+.fc-list-event:hover td {
+  background-color: #f3f4f6;
+}
+
+.fc-list-day-cushion {
+  background-color: #f9fafb;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.fc-list-event-title {
+  color: #1f2937;
+}
+
+.fc-list-event-time {
+  color: #6b7280;
+}
+
+/* Scrollgrid */
 .fc-scrollgrid {
   border-collapse: separate;
   border-spacing: 0;
@@ -49,84 +234,35 @@
   width: 100%;
 }
 
-.fc-event {
-  margin: 2px;
+/* More Link */
+.fc .fc-more-link {
+  color: #3b82f6;
+  font-size: 0.75rem;
+  font-weight: 500;
   padding: 2px 4px;
-  border-radius: 3px;
-  font-size: 0.85em;
-}
-
-.fc-daygrid-event-harness {
-  margin-top: 2px;
-}
-
-.fc-h-event {
-  display: block;
-  border: 1px solid;
-}
-
-.fc-timegrid-slot {
-  height: 3em;
-}
-
-.fc-timegrid-slot-label {
-  border-bottom: 0;
-}
-
-.fc-list-event:hover td {
-  background-color: #f3f4f6;
-}
-
-/* Custom Calendar Styling */
-.fc {
-  font-family: inherit;
-}
-
-.fc .fc-button-primary {
-  background-color: #3b82f6;
-  border-color: #3b82f6;
-}
-
-.fc .fc-button-primary:hover {
-  background-color: #2563eb;
-  border-color: #2563eb;
-}
-
-.fc .fc-button-primary:disabled {
-  background-color: #93c5fd;
-  border-color: #93c5fd;
-}
-
-.fc .fc-button-active {
-  background-color: #1d4ed8;
-  border-color: #1d4ed8;
-}
-
-.fc-event {
   cursor: pointer;
-  transition: transform 0.2s;
 }
 
-.fc-event:hover {
-  transform: scale(1.02);
+.fc .fc-more-link:hover {
+  color: #2563eb;
+  text-decoration: underline;
 }
 
-.fc-daygrid-event {
-  padding: 2px 4px;
-  border-radius: 4px;
+/* Popover */
+.fc .fc-popover {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
-.fc .fc-toolbar-title {
-  font-size: 1.5rem;
+.fc .fc-popover-header {
+  background-color: #f9fafb;
+  padding: 0.5rem 0.75rem;
   font-weight: 600;
   color: #1f2937;
 }
 
-.fc-theme-standard .fc-scrollgrid {
-  border-color: #e5e7eb;
-}
-
-.fc-theme-standard td,
-.fc-theme-standard th {
-  border-color: #e5e7eb;
+.fc .fc-popover-body {
+  padding: 0.5rem;
 }
