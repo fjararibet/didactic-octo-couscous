@@ -112,7 +112,7 @@ export const assignUpToFiveActivitiesPerWeekday = async (
   const weeklySchedule = new Map<number, ActivityTemplate[]>();
 
   for (let weekday = 1; weekday <= 5; weekday++) { // Monday to Friday
-    const numberOfActivities = Math.floor(Math.random() * 6); // 0 to 5
+    const numberOfActivities = 1 + Math.floor(Math.random() * 2); // 1 to 3
     const activitiesForDay: ActivityTemplate[] = [];
 
     for (let i = 0; i < numberOfActivities; i++) {

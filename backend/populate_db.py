@@ -372,6 +372,7 @@ def populate():
             # Randomly assign 2 to 5 activities per supervisor
             num_activities = random.randint(20, 30)
             num_activities = 30
+            activities_per_day = {}
 
             for _ in range(num_activities):
                 # Choose a random activity template
@@ -386,10 +387,14 @@ def populate():
                     scheduled_date = datetime(year, month, day)
                     # Monday is 0 and Sunday is 6
                     if scheduled_date.weekday() < 5:
-                        break
+                        if activities_per_day.get(scheduled_date, 0) < 2:
+                            activities_per_day[scheduled_date] = (
+                                activities_per_day.get(scheduled_date, 0) + 1
+                            )
+                            break
 
                 # Decide if activity is completed (in_review) or not
-                is_completed = random.choice([True, False])
+                is_completed = random.random() < 0.8
 
                 activity = Activity(
                     name=template.name,
