@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { activityService } from '@/services/activityService';
+import { useState } from 'react';
+import { activityTemplateService } from '@/services/activityTemplateService';
 import {
   Dialog,
   DialogContent,
@@ -14,35 +14,19 @@ import { Label } from '@/components/ui/label';
 interface NewActivityModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onActivityCreated: () => void;
-  initialDate?: string | null;
+  onActivityTemplateCreated: () => void;
 }
 
 const NewActivityModal = ({
   isOpen,
   onClose,
-  onActivityCreated,
-  initialDate,
+  onActivityTemplateCreated,
 }: NewActivityModalProps) => {
   const [formData, setFormData] = useState({
     name: '',
-    scheduled_date: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-
-  // Set initial date when provided
-  useEffect(() => {
-    if (initialDate) {
-      const date = new Date(initialDate);
-      const dateString = date.toISOString().split('T')[0];
-
-      setFormData(prev => ({
-        ...prev,
-        scheduled_date: dateString,
-      }));
-    }
-  }, [initialDate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,28 +39,21 @@ const NewActivityModal = ({
 
     setIsSubmitting(true);
     try {
-      // Use date with default time if date is provided
-      let scheduledDateTime: string | null = null;
-      if (formData.scheduled_date) {
-        // Create date at noon to avoid timezone issues
-        scheduledDateTime = `${formData.scheduled_date}T12:00:00.000Z`;
-      }
-
-      await activityService.createActivity({
+      await activityTemplateService.createActivityTemplate({
         name: formData.name,
-        scheduled_date: scheduledDateTime,
       });
 
       // Reset form
       setFormData({
         name: '',
-        scheduled_date: '',
       });
 
-      onActivityCreated();
+      onActivityTemplateCreated();
     } catch (err) {
-      console.error('Error creating activity:', err);
-      setError('Error al crear la actividad. Por favor, intenta nuevamente.');
+      console.error('Error creating activity template:', err);
+      setError(
+        'Error al crear la plantilla de actividad. Por favor, intenta nuevamente.'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -86,7 +63,6 @@ const NewActivityModal = ({
     if (!isSubmitting) {
       setFormData({
         name: '',
-        scheduled_date: '',
       });
       setError('');
       onClose();
@@ -97,39 +73,26 @@ const NewActivityModal = ({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Nueva Actividad</DialogTitle>
+          <DialogTitle>Nueva Plantilla de Actividad</DialogTitle>
           <DialogDescription>
-            Crea una nueva actividad de seguridad y prevención
+            Crea una nueva plantilla de actividad de seguridad y prevención
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Activity Name */}
           <div className="space-y-2">
-            <Label htmlFor="activity-name">Nombre de la Actividad</Label>
+            <Label htmlFor="activity-name">Nombre de la Plantilla</Label>
             <Input
               id="activity-name"
               placeholder="Ej: Inspección de extintores"
               value={formData.name}
-              onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              onChange={e =>
+                setFormData(prev => ({ ...prev, name: e.target.value }))
+              }
               disabled={isSubmitting}
               required
             />
-          </div>
-
-          {/* Scheduled Date */}
-          <div className="space-y-2">
-            <Label htmlFor="activity-date">Fecha Programada (opcional)</Label>
-            <Input
-              id="activity-date"
-              type="date"
-              value={formData.scheduled_date}
-              onChange={e => setFormData(prev => ({ ...prev, scheduled_date: e.target.value }))}
-              disabled={isSubmitting}
-            />
-            <p className="text-xs text-gray-500">
-              Dejar vacío para programar más tarde desde el calendario
-            </p>
           </div>
 
           {/* Error Message */}
@@ -150,7 +113,7 @@ const NewActivityModal = ({
               Cancelar
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Creando...' : 'Crear Actividad'}
+              {isSubmitting ? 'Creando...' : 'Crear Plantilla'}
             </Button>
           </div>
         </form>

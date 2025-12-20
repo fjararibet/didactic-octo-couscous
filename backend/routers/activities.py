@@ -2,7 +2,7 @@ from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select
 from database import get_session
-from models import Activity, User
+from models import Activity, User, ActivityTemplate, TodoItem
 from schemas import (
     ActivityCreate,
     ActivityRead,
@@ -18,15 +18,30 @@ def create_activity(
     *,
     session: Session = Depends(get_session),
     current_user: Annotated[User, Depends(get_current_user)],
-    activity: ActivityCreate
+    activity: ActivityCreate,
 ):
     db_activity = Activity.model_validate(activity)
     db_activity.created_by_id = current_user.id
+
+    if activity.activity_template_id:
+        template = session.get(ActivityTemplate, activity.activity_template_id)
+        if not template:
+            raise HTTPException(status_code=404, detail="Activity Template not found")
+        
+        db_activity.name = template.name
+        
+        for template_todo in template.template_todos:
+            todo_item = TodoItem(
+                description=template_todo.description,
+                is_done=False,
+                activity=db_activity,
+            )
+            session.add(todo_item)
+
     session.add(db_activity)
     session.commit()
     session.refresh(db_activity)
 
-    # Refresh the creator and assigned_to relationships
     session.refresh(db_activity, attribute_names=["created_by", "assigned_to"])
 
     return db_activity

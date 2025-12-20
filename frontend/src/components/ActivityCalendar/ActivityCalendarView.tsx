@@ -1,13 +1,14 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin, { Draggable } from '@fullcalendar/interaction';
+import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
-import type { EventClickArg, DateSelectArg, EventDropArg } from '@fullcalendar/core';
-import type { Activity } from '@/types/activity';
+import type { EventClickArg, EventDropArg } from '@fullcalendar/core';
+import type { Activity, ActivityTemplate } from '@/types/activity';
 import { activityService } from '@/services/activityService';
-import { userService } from '@/services/userService'; // Import userService
+import { activityTemplateService } from '@/services/activityTemplateService';
+import { userService } from '@/services/userService';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import ActivityDetailModal from './ActivityDetailModal';
@@ -22,109 +23,74 @@ interface ActivityCalendarViewProps {
 
 const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
   const [activities, setActivities] = useState<Activity[]>([]);
+  const [activityTemplates, setActivityTemplates] = useState<ActivityTemplate[]>([]);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isNewActivityModalOpen, setIsNewActivityModalOpen] = useState(false);
-  const [newActivityDate, setNewActivityDate] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [supervisorName, setSupervisorName] = useState<string>(''); // Add supervisorName state
-  const draggableRef = useRef<HTMLDivElement>(null);
-  const draggableInstanceRef = useRef<Draggable | null>(null); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [supervisorName, setSupervisorName] = useState<string>('');
 
-  // Get status color
   const getStatusColor = (status: Activity['status']) => {
     switch (status) {
       case 'pending':
-        return '#f59e0b'; // amber
+        return '#f59e0b';
       case 'in_progress':
-        return '#3b82f6'; // blue
+        return '#3b82f6';
       case 'done':
-        return '#10b981'; // green
+        return '#10b981';
       default:
-        return '#6b7280'; // gray
+        return '#6b7280';
     }
   };
 
-  // Load activities
-  const loadActivities = useCallback(async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await activityService.getActivitiesByCreator(userId);
-      setActivities(data);
+      const [activityData, templateData, userData] = await Promise.all([
+        activityService.getActivitiesByCreator(userId),
+        activityTemplateService.getActivityTemplates(),
+        userService.getUserById(userId),
+      ]);
+      setActivities(activityData);
+      setActivityTemplates(templateData);
+      setSupervisorName(userData.username);
     } catch (error) {
-      console.error('Error loading activities:', error);
+      console.error('Error loading data:', error);
     } finally {
       setLoading(false);
     }
   }, [userId]);
 
-  // Load supervisor name
-  const loadSupervisorName = useCallback(async () => {
-    try {
-      const user = await userService.getUserById(userId);
-      setSupervisorName(user.username);
-    } catch (error) {
-      console.error('Error loading supervisor name:', error);
-    }
-  }, [userId]);
-
   useEffect(() => {
-    loadActivities();
-    loadSupervisorName();
-  }, [loadActivities, loadSupervisorName]);
+    loadData();
+  }, [loadData]);
 
-  const scheduledActivities = activities.filter(activity => activity.scheduled_date !== null);
-  const unscheduledActivities = activities.filter(activity => activity.scheduled_date === null);
+  const events = activities.map(activity => ({
+    id: String(activity.id),
+    title: `${activity.name} (${activity.todos.filter(t => t.is_done).length}/${
+      activity.todos.length
+    }) - ${activity.assigned_to.username}`,
+    start: activity.scheduled_date!,
+    allDay: true,
+    backgroundColor: getStatusColor(activity.status),
+    borderColor: getStatusColor(activity.status),
+    extendedProps: { activity },
+  }));
 
-  // Convert scheduled activities to calendar events
-  const events = scheduledActivities.map(activity => {
-    const completedTodos = activity.todos.filter(t => t.is_done).length;
-    const totalTodos = activity.todos.length;
-    let title = `${activity.name} (${completedTodos}/${totalTodos})`;
-    if (activity.assigned_to) {
-      title += ` - ${activity.assigned_to.username}`;
-    }
-
-    return {
-      id: String(activity.id),
-      title: title,
-      start: activity.scheduled_date!,
-      allDay: true,
-      backgroundColor: getStatusColor(activity.status),
-      borderColor: getStatusColor(activity.status),
-      extendedProps: {
-        activity,
-      },
-    };
-  });
-
-  // Handle event click
   const handleEventClick = (clickInfo: EventClickArg) => {
     const activity = clickInfo.event.extendedProps.activity as Activity;
     setSelectedActivity(activity);
     setIsDetailModalOpen(true);
   };
 
-  // Handle date select (for creating new activity)
-  const handleDateSelect = (selectInfo: DateSelectArg) => {
-    setNewActivityDate(selectInfo.startStr);
-    setIsNewActivityModalOpen(true);
-    selectInfo.view.calendar.unselect();
-  };
-
-  // Handle activity created
-  const handleActivityCreated = () => {
-    loadActivities();
+  const handleActivityTemplateCreated = () => {
+    loadData();
     setIsNewActivityModalOpen(false);
-    setNewActivityDate(null);
   };
 
-  // Handle activity updated (refresh without closing modal)
   const handleActivityUpdated = async () => {
     const updatedActivities = await activityService.getActivitiesByCreator(userId);
     setActivities(updatedActivities);
-
-    // Update the selected activity with fresh data
     if (selectedActivity) {
       const updatedActivity = updatedActivities.find(a => a.id === selectedActivity.id);
       if (updatedActivity) {
@@ -133,110 +99,69 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
     }
   };
 
-  // Handle event drop (when activity is dragged to new date)
   const handleEventDrop = async (dropInfo: EventDropArg) => {
     const activity = dropInfo.event.extendedProps.activity as Activity;
     const newDate = dropInfo.event.start;
-
     if (!newDate) return;
-
     try {
       await activityService.updateActivity(activity.id, {
         scheduled_date: newDate.toISOString(),
       });
-
-      // Update state without full reload for smoother UX
-      const updatedActivities = await activityService.getActivitiesByCreator(userId);
-      setActivities(updatedActivities);
+      loadData();
     } catch (error) {
       console.error('Error updating activity date:', error);
       dropInfo.revert();
     }
   };
 
-  // Handle unscheduled activity click
-  const handleUnscheduledActivityClick = (activity: Activity) => {
-    setSelectedActivity(activity);
-    setIsDetailModalOpen(true);
-  };
-
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Calendario de Actividades de {supervisorName}</h2>
+        <h2 className="text-2xl font-bold text-gray-800">
+          Calendario de Actividades de {supervisorName}
+        </h2>
         <Button onClick={() => setIsNewActivityModalOpen(true)}>
-          Nueva Actividad
+          Nueva Plantilla de Actividad
         </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Unscheduled Activities Sidebar */}
         <Card className="p-4 lg:col-span-1">
           <div className="flex items-center gap-2 mb-4">
             <Calendar className="h-5 w-5 text-gray-600" />
-            <h3 className="font-semibold text-gray-700">Sin Programar</h3>
-            <span className="text-sm text-gray-500">({unscheduledActivities.length})</span>
+            <h3 className="font-semibold text-gray-700">Plantillas de Actividad</h3>
+            <span className="text-sm text-gray-500">({activityTemplates.length})</span>
           </div>
-
-          {unscheduledActivities.length > 0 ? (
-            <>
-              <div ref={draggableRef} className="space-y-2">
-                {unscheduledActivities.map(activity => {
-                  const completedTodos = activity.todos.filter(t => t.is_done).length;
-                  const totalTodos = activity.todos.length;
-
-                  return (
-                    <div
-                      key={activity.id}
-                      data-activity-id={activity.id}
-                      onClick={() => handleUnscheduledActivityClick(activity)}
-                      className="fc-event p-4 rounded-xl cursor-move hover:shadow-2xl hover:scale-105 border-l-4 unscheduled-activity"
-                      style={{
-                        borderLeftColor: getStatusColor(activity.status),
-                        backgroundColor: '#ffffff',
-                        boxShadow: `0 2px 8px ${getStatusColor(activity.status)}40`,
-                        border: `2px solid ${getStatusColor(activity.status)}`,
-                        borderLeftWidth: '6px',
-                        transition: 'box-shadow 0.2s ease, transform 0.2s ease',
-                      }}
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1">
-                          <div className="font-bold text-sm text-gray-900 mb-1">{activity.name}</div>
-                          {activity.assigned_to && (
-                            <div className="text-xs text-gray-600 font-semibold">
-                              {activity.assigned_to.username} - {activity.assigned_to.email}
-                            </div>
-                          )}
-                          <div className="text-xs text-gray-500 font-medium">
-                            {completedTodos}/{totalTodos} tareas completadas
-                          </div>
-                        </div>
-                        <div
-                          className="w-2 h-2 rounded-full mt-1 shrink-0"
-                          style={{ backgroundColor: getStatusColor(activity.status) }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <p className="text-xs text-gray-500 mt-4 italic">
-                Arrastra las actividades al calendario para programarlas
-              </p>
-            </>
+          {activityTemplates.length > 0 ? (
+            <div className="space-y-2">
+              {activityTemplates.map(template => (
+                <div
+                  key={template.id}
+                  data-template-id={template.id}
+                  className="fc-event p-4 rounded-xl cursor-move hover:shadow-2xl hover:scale-105 border-l-4"
+                  style={{
+                    borderLeftColor: '#6b7280',
+                    backgroundColor: '#ffffff',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                    border: '2px solid #e5e7eb',
+                    borderLeftWidth: '6px',
+                    transition: 'box-shadow 0.2s ease, transform 0.2s ease',
+                  }}
+                >
+                  <div className="font-bold text-sm text-gray-900">{template.name}</div>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="text-center py-8 text-gray-500">
-              <p className="text-sm">No hay actividades sin programar</p>
-              <p className="text-xs mt-2">Todas las actividades tienen fecha asignada</p>
+              <p className="text-sm">No hay plantillas de actividad</p>
             </div>
           )}
         </Card>
 
-        {/* Calendar */}
         <Card className="p-4 lg:col-span-3">
           {loading ? (
-            <div className="text-center py-8 text-gray-500">Cargando actividades...</div>
+            <div className="text-center py-8 text-gray-500">Cargando...</div>
           ) : (
             <FullCalendar
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
@@ -259,44 +184,22 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
               eventDrop={handleEventDrop}
               editable={true}
               droppable={true}
-              selectable={true}
-              select={handleDateSelect}
               height="auto"
-              slotMinTime="07:00:00"
-              slotMaxTime="19:00:00"
-              allDaySlot={true}
-              nowIndicator={true}
-              eventTimeFormat={{
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false,
-              }}
-              snapDuration="00:15:00"
-              eventDragMinDistance={5}
-              longPressDelay={0}
-              eventDurationEditable={false}
-              allDayText="Todo el día"
-              drop={async (info) => {
-                const activityId = info.draggedEl.getAttribute('data-activity-id');
-                if (activityId) {
-                  const activity = unscheduledActivities.find(a => a.id === parseInt(activityId));
-                  if (activity) {
-                    // Format date as YYYY-MM-DD at noon UTC to avoid timezone issues
-                    const year = info.date.getFullYear();
-                    const month = String(info.date.getMonth() + 1).padStart(2, '0');
-                    const day = String(info.date.getDate()).padStart(2, '0');
-                    const newDate = `${year}-${month}-${day}T12:00:00.000Z`;
-
+              drop={async info => {
+                const templateId = info.draggedEl.getAttribute('data-template-id');
+                if (templateId) {
+                  const template = activityTemplates.find(t => t.id === parseInt(templateId));
+                  if (template) {
+                    const newDate = `${info.dateStr}T12:00:00.000Z`;
                     try {
-                      await activityService.updateActivity(activity.id, {
+                      await activityService.createActivity({
+                        name: template.name,
                         scheduled_date: newDate,
+                        assigned_to_id: userId,
                       });
-
-                      // Update state without full reload for smoother UX
-                      const updatedActivities = await activityService.getActivitiesByCreator(userId);
-                      setActivities(updatedActivities);
+                      loadData();
                     } catch (error) {
-                      console.error('Error scheduling activity:', error);
+                      console.error('Error creating activity from template:', error);
                     }
                   }
                 }
@@ -321,12 +224,8 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
 
       <NewActivityModal
         isOpen={isNewActivityModalOpen}
-        onClose={() => {
-          setIsNewActivityModalOpen(false);
-          setNewActivityDate(null);
-        }}
-        onActivityCreated={handleActivityCreated}
-        initialDate={newActivityDate}
+        onClose={() => setIsNewActivityModalOpen(false)}
+        onActivityTemplateCreated={handleActivityTemplateCreated}
       />
     </div>
   );

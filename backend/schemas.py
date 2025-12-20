@@ -42,7 +42,7 @@ class ActivityBase(SQLModel):
 
 # Properties to receive on item creation
 class ActivityCreate(ActivityBase):
-    pass
+    activity_template_id: Optional[int] = None
 
 class ActivityUpdate(SQLModel):
     name: Optional[str] = None
