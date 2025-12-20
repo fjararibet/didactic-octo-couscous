@@ -14,6 +14,37 @@ from models import (
 )
 from security import get_password_hash
 
+# Listas de nombres y apellidos en español
+NOMBRES = [
+    "Carlos", "María", "José", "Ana", "Luis", "Carmen", "Miguel", "Isabel",
+    "Francisco", "Rosa", "Antonio", "Patricia", "Juan", "Laura", "Pedro",
+    "Elena", "Javier", "Lucía", "Manuel", "Sofía", "Ricardo", "Marta",
+    "Diego", "Cristina", "Alejandro", "Paula", "Fernando", "Andrea",
+    "Roberto", "Beatriz", "Sergio", "Raquel", "Jorge", "Silvia", "Pablo",
+    "Teresa", "Andrés", "Natalia", "Ramón", "Pilar", "Enrique", "Victoria",
+    "Alberto", "Daniela", "Raúl", "Gabriela", "Daniel", "Claudia", "Tomás",
+    "Adriana", "Ángel", "Lorena", "Guillermo", "Susana", "Rafael", "Mónica"
+]
+
+APELLIDOS = [
+    "García", "Rodríguez", "González", "Fernández", "López", "Martínez",
+    "Sánchez", "Pérez", "Gómez", "Martín", "Jiménez", "Ruiz", "Hernández",
+    "Díaz", "Moreno", "Muñoz", "Álvarez", "Romero", "Alonso", "Gutiérrez",
+    "Navarro", "Torres", "Domínguez", "Vázquez", "Ramos", "Gil", "Ramírez",
+    "Serrano", "Blanco", "Molina", "Castro", "Ortega", "Rubio", "Marín",
+    "Sanz", "Iglesias", "Medina", "Garrido", "Cortés", "Castillo", "Santos",
+    "Lozano", "Guerrero", "Cano", "Prieto", "Méndez", "Cruz", "Gallego",
+    "Vidal", "León", "Herrera", "Peña", "Flores", "Cabrera", "Campos"
+]
+
+
+def generar_nombre_completo() -> str:
+    """Genera un nombre completo aleatorio en español."""
+    nombre = random.choice(NOMBRES)
+    apellido1 = random.choice(APELLIDOS)
+    apellido2 = random.choice(APELLIDOS)
+    return f"{nombre} {apellido1} {apellido2}"
+
 
 def clear_db(session: Session):
     print("Clearing existing data...")
@@ -279,16 +310,16 @@ def populate():
 
     hashed_password = get_password_hash("pass")
 
-    # Create 5 Preventionists
+    # Create Preventionists
     preventionists = []
     print("Creating Preventionists...")
     for i in range(1):
+        nombre_completo = generar_nombre_completo()
         uid = str(uuid.uuid4())[:8]
-        username = f"prev_{uid}"
         email = f"prev_{uid}@example.com"
 
         user = User(
-            username=username,
+            username=nombre_completo,
             email=email,
             role=Role.preventionist,
             password_hash=hashed_password,
@@ -313,15 +344,15 @@ def populate():
     for prev in preventionists:
         # Each preventionist has between 5 and 20 supervisors
         # num_supervisors = random.randint(5, 20)
-        num_supervisors = 1
+        num_supervisors = 10
 
         for j in range(num_supervisors):
+            nombre_completo = generar_nombre_completo()
             uid = str(uuid.uuid4())[:8]
-            username = f"sup_{uid}"
             email = f"sup_{uid}@example.com"
 
             supervisor = User(
-                username=username,
+                username=nombre_completo,
                 email=email,
                 role=Role.supervisor,
                 password_hash=hashed_password,

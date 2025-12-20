@@ -180,7 +180,7 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
 
                                     {/* Tooltip con lista de tareas */}
                                     {template.template_todos.length > 0 && (
-                                      <div className="absolute bottom-full mb-2 left-0 right-0 z-[9999] hidden group-hover:block bg-gray-900 text-white text-xs rounded-lg shadow-xl p-3 max-w-xs">
+                                      <div className="absolute bottom-full mb-2 left-0 right-0 z-9999 hidden group-hover:block bg-gray-900 text-white text-xs rounded-lg shadow-xl p-3 max-w-xs">
                                         <div className="font-semibold mb-2 text-gray-100">Tareas de la plantilla:</div>
                                         <ul className="space-y-1.5 max-h-48 overflow-y-auto">
                                           {template.template_todos.map((todo, idx) => (
