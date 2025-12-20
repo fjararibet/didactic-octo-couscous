@@ -371,7 +371,7 @@ def populate():
             # Create Activities for this Supervisor
             # Randomly assign 2 to 5 activities per supervisor
             num_activities = random.randint(20, 30)
-            num_activities = 0
+            num_activities = 30
 
             for _ in range(num_activities):
                 # Choose a random activity template
@@ -380,7 +380,7 @@ def populate():
                 # Generate a random date in December 2025
                 year = 2025
                 month = 12
-                day = random.randint(1, 31)  # December has 31 days
+                day = random.randint(1, 19)  # December has 31 days, but we want until yesterday (19th)
                 scheduled_date = datetime(year, month, day)
 
                 # Decide if activity is completed (in_review) or not
