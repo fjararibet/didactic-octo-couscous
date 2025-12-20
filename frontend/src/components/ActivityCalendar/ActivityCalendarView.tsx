@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin from '@fullcalendar/interaction';
+import interactionPlugin, { Draggable } from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 import type { EventClickArg, EventDropArg } from '@fullcalendar/core';
 import type { Activity, ActivityTemplate } from '@/types/activity';
@@ -29,6 +29,7 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
   const [isNewActivityModalOpen, setIsNewActivityModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [supervisorName, setSupervisorName] = useState<string>('');
+  const draggableContainerRef = useRef<HTMLDivElement>(null);
 
   const getStatusColor = (status: Activity['status']) => {
     switch (status) {
@@ -64,6 +65,27 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    if (draggableContainerRef.current) {
+      const draggable = new Draggable(draggableContainerRef.current, {
+        itemSelector: '.fc-event.template-card',
+        eventData: function (eventEl) {
+          const templateId = eventEl.getAttribute('data-template-id');
+          return {
+            id: `template-${templateId}`,
+            title: eventEl.innerText.split('\n')[0], // Get the name from the template card
+            create: true,
+            extendedProps: {
+              templateId: templateId ? parseInt(templateId) : null,
+            },
+          };
+        },
+      });
+
+      return () => draggable.destroy();
+    }
+  }, [activityTemplates]); // Re-initialize if templates change
 
   const events = activities.map(activity => ({
     id: String(activity.id),
@@ -133,24 +155,34 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
             <span className="text-sm text-gray-500">({activityTemplates.length})</span>
           </div>
           {activityTemplates.length > 0 ? (
-            <div className="space-y-2">
+            <div ref={draggableContainerRef} className="space-y-2">
               {activityTemplates.map(template => (
-                <div
-                  key={template.id}
-                  data-template-id={template.id}
-                  className="fc-event p-4 rounded-xl cursor-move hover:shadow-2xl hover:scale-105 border-l-4"
-                  style={{
-                    borderLeftColor: '#6b7280',
-                    backgroundColor: '#ffffff',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                    border: '2px solid #e5e7eb',
-                    borderLeftWidth: '6px',
-                    transition: 'box-shadow 0.2s ease, transform 0.2s ease',
-                  }}
-                >
-                  <div className="font-bold text-sm text-gray-900">{template.name}</div>
-                </div>
-              ))}
+                                  <div
+                                    key={template.id}
+                                    data-template-id={template.id}
+                                    className="fc-event p-4 rounded-xl cursor-move hover:shadow-2xl hover:scale-105 border-l-4 template-card"
+                                    style={{
+                                      borderLeftColor: '#6b7280', // gray
+                                      backgroundColor: '#ffffff',
+                                      boxShadow: `0 2px 8px rgba(107, 114, 128, 0.25)`,
+                                      border: `2px solid #e5e7eb`,
+                                      borderLeftWidth: '6px',
+                                      transition: 'box-shadow 0.2s ease, transform 0.2s ease',
+                                    }}
+                                  >
+                                    <div className="flex items-start justify-between gap-2">
+                                      <div className="flex-1">
+                                        <div className="font-bold text-sm text-gray-900 mb-1">{template.name}</div>
+                                        <div className="text-xs text-gray-500 font-medium">
+                                          {template.template_todos.length} tareas en la checklist
+                                        </div>
+                                      </div>
+                                      <div
+                                        className="w-2 h-2 rounded-full mt-1 shrink-0"
+                                        style={{ backgroundColor: '#6b7280' }} // gray
+                                      />
+                                    </div>
+                                  </div>              ))}
             </div>
           ) : (
             <div className="text-center py-8 text-gray-500">
@@ -196,6 +228,7 @@ const ActivityCalendarView = ({ userId }: ActivityCalendarViewProps) => {
                         name: template.name,
                         scheduled_date: newDate,
                         assigned_to_id: userId,
+                        activity_template_id: parseInt(templateId),
                       });
                       loadData();
                     } catch (error) {

@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Optional
 from datetime import datetime
 from sqlmodel import SQLModel
@@ -90,6 +91,7 @@ class ActivityTemplateUpdate(SQLModel):
 
 class ActivityTemplateRead(ActivityTemplateBase):
     id: int
+    template_todos: list["TemplateTodoItemRead"] = []
 
 
 class TemplateTodoItemBase(SQLModel):
