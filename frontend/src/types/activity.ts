@@ -119,3 +119,20 @@ export const isActivityMissed = (
 
   return scheduledDate < today;
 };
+
+export interface DetailedStats {
+  status_distribution: {
+    pending: number;
+    in_progress: number;
+    done: number;
+    missed: number;
+  };
+  total_activities: number;
+  upcoming_activities: number;
+  completion_rate: number;
+  completion_trend: number;
+  avg_task_completion: number;
+  completed_tasks: number;
+  total_tasks: number;
+  prev_completion_rate: number;
+}

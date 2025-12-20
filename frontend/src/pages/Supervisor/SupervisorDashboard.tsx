@@ -8,6 +8,7 @@ import { StatusesPieChart } from './StatusesPieChart';
 import { activityService } from '@/services/activityService';
 import type { Activity } from '@/types/activity';
 import SupervisorActivityDetailModal from './SupervisorActivityDetailModal';
+import { calculateActivityStatus } from '@/lib/utils';
 
 
 const SupervisorDashboard = () => {
@@ -46,7 +47,9 @@ const SupervisorDashboard = () => {
 
   const handleCloseModal = () => {
     setSelectedActivity(null);
-    fetchNextActivity();
+    if (nextActivity && calculateActivityStatus(nextActivity) === 'done') {
+      fetchNextActivity();
+    }
   };
 
   if (!user) {
@@ -54,11 +57,11 @@ const SupervisorDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="mx-auto">
-        <div className="flex justify-between items-center mb-6">
+    <div className="h-screen overflow-hidden bg-gray-100 p-4">
+      <div className="mx-auto h-full">
+        <div className="flex justify-between items-center mb-2">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">Panel de Supervisor</h1>
+            <h1 className="text-2xl font-bold text-gray-800">Panel de Supervisor</h1>
             <p className="text-sm text-gray-500 mt-1">Sesión: {user?.email}</p>
           </div>
           <Button variant="outline" onClick={handleLogout}>
@@ -67,10 +70,10 @@ const SupervisorDashboard = () => {
         </div>
 
         <Card className="w-full">
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <CardContent className="grid grid-cols-2 grid-rows-2 gap-6">
             <div className="flex flex-col space-y-4">
               <Card
-                className="w-full cursor-pointer hover:bg-gray-50"
+                className={`w-full cursor-pointer col-start-1 col-end-2 ${nextActivity && calculateActivityStatus(nextActivity) === 'done' ? 'bg-green-400 hover:bg-green-500' : 'hover:bg-gray-50'}`}
                 onClick={() => nextActivity && handleOpenModal(nextActivity)}
               >
                 <CardHeader>
@@ -84,6 +87,11 @@ const SupervisorDashboard = () => {
                       <p className="text-lg font-semibold">{nextActivity.name}</p>
                       <p className="text-sm text-gray-600">Fecha: {new Date(nextActivity.scheduled_date!).toLocaleDateString()}</p>
                       <p className="text-sm text-gray-600">Asignado por: {nextActivity.created_by.username}</p>
+                      {calculateActivityStatus(nextActivity) === 'done' && (
+                        <Button onClick={fetchNextActivity} className="mt-4">
+                          Siguiente Tarea
+                        </Button>
+                      )}
                     </div>
                   ) : (
                     <p>No hay actividades programadas próximamente.</p>
