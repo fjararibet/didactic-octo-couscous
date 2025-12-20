@@ -79,7 +79,7 @@ const SupervisorDashboard = () => {
   }
 
   return (
-    <div className="h-screen overflow-hidden bg-gray-100 p-4">
+    <div className="h-screen bg-gray-100 p-4">
       <div className="mx-auto h-full">
         <div className="flex justify-between items-center mb-2">
           <div>
