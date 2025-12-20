@@ -15,19 +15,6 @@ def read_users_me(current_user: User = Depends(get_current_user)):
     return current_user
 
 
-@router.get("/{user_id}", response_model=UserRead)
-def read_user_by_id(
-    user_id: int,
-    session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user)
-):
-    user = session.get(User, user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
-
-
-
 @router.get("/supervisors", response_model=List[UserRead])
 def get_my_supervisors(
     current_user: User = Depends(get_current_user),
@@ -49,6 +36,18 @@ def get_my_supervisors(
 
     supervisors = session.exec(statement).all()
     return supervisors
+
+
+@router.get("/{user_id}", response_model=UserRead)
+def read_user_by_id(
+    user_id: int,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user)
+):
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
 
 
 @router.post("/assign-supervisor")
