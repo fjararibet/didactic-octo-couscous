@@ -9,9 +9,11 @@ from routers.auth import get_current_user
 
 router = APIRouter(tags=["users"])
 
+
 @router.get("/me", response_model=UserRead)
 def read_users_me(current_user: User = Depends(get_current_user)):
     return current_user
+
 
 @router.get("/supervisors", response_model=List[UserRead])
 def get_my_supervisors(
@@ -20,10 +22,15 @@ def get_my_supervisors(
 ):
     if current_user.role != Role.preventionist:
         raise HTTPException(status_code=403, detail="Only preventionists can access this endpoint")
-    
-    statement = select(User).join(SupervisorAssignment, User.id == SupervisorAssignment.supervisor_id).where(SupervisorAssignment.preventionist_id == current_user.id)
+
+    statement = (
+        select(User)
+        .join(SupervisorAssignment)
+        .where(SupervisorAssignment.preventionist_id == current_user.id)
+    )
     supervisors = session.exec(statement).all()
     return supervisors
+
 
 @router.post("/assign-supervisor")
 def assign_supervisor_to_preventionist(
@@ -58,16 +65,17 @@ def assign_supervisor_to_preventionist(
     session.commit()
     return {"message": "Supervisor assigned successfully"}
 
+
 @router.post("/", response_model=UserRead)
 def create_user(user: UserCreate, session: Session = Depends(get_session)):
     db_user = session.exec(select(User).where(User.username == user.username)).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Username already registered")
-    
+
     user_data = user.model_dump()
     password = user_data.pop("password")
     hashed_password = get_password_hash(password)
-    
+
     db_user = User(**user_data, password_hash=hashed_password)
     session.add(db_user)
     session.commit()
