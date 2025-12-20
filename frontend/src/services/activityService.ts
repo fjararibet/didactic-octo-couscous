@@ -145,6 +145,9 @@ export const activityService = {
     if (data.assigned_to_id !== undefined) {
       updatePayload.assigned_to_id = data.assigned_to_id;
     }
+    if (data.in_review !== undefined) {
+      updatePayload.in_review = data.in_review;
+    }
 
     const response = await authService.fetchWithAuth(`${API_URL}/activities/${id}`, {
       method: 'PATCH',

@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Circle, XCircle, Ban } from 'lucide-react';
+import { CheckCircle2, Circle, XCircle, Ban, Send } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { activityStatusBadgeColors } from '../../styles/colors';
 import { calculateActivityStatus } from '../../lib/utils';
@@ -61,6 +61,20 @@ const SupervisorActivityDetailModal = ({
 
   const handleClose = () => {
     onClose();
+  };
+
+  const handleSendToReview = async () => {
+    try {
+      const updated = await activityService.updateActivity(localActivity.id, {
+        in_review: true,
+      });
+      if (updated) {
+        onActivityUpdate(updated);
+        onClose();
+      }
+    } catch (error) {
+      console.error('Error sending to review:', error);
+    }
   };
 
   const getStatusBadge = (status: Activity['status']) => {
@@ -205,8 +219,13 @@ const SupervisorActivityDetailModal = ({
           </div>
 
           <div className="flex justify-end gap-2 pt-4 border-t">
-            <Button variant="outline" onClick={handleClose}>
-              Cerrar
+            <Button
+              onClick={handleSendToReview}
+              disabled={completedTodos !== totalTodos || localActivity.in_review}
+              className="gap-2"
+            >
+              <Send className="w-4 h-4" />
+              {localActivity.in_review ? 'En Revisión' : 'Enviar a Revisión'}
             </Button>
           </div>
 
